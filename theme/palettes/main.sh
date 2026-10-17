@@ -1,0 +1,13 @@
+# Rose Pine main palette (hex, no #)
+RP_BASE=191724
+RP_SURFACE=1f1d2e
+RP_OVERLAY=26233a
+RP_MUTED=6e6a86
+RP_SUBTLE=908caa
+RP_TEXT=e0def4
+RP_LOVE=eb6f92
+RP_GOLD=f6c177
+RP_ROSE=ebbcba
+RP_PINE=31748f
+RP_FOAM=9ccfd8
+RP_IRIS=c4a7e7

@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# rosepine-switch [auto|main|dawn]
+set -euo pipefail
+
+src="${BASH_SOURCE[0]}"
+while [ -L "$src" ]; do
+  d="$(cd "$(dirname "$src")" && pwd)"
+  src="$(readlink "$src")"
+  case "$src" in /*) ;; *) src="$d/$src" ;; esac
+done
+root="$(cd "$(dirname "$src")/.." && pwd)"
+
+. "$root/lib/render.sh"
+
+mode="${1:-auto}"
+[ "$mode" = auto ] && mode="$(mode_for_hour "$(date +%H)")"
+case "$mode" in main|dawn) ;; *) echo "usage: rosepine-switch [auto|main|dawn]" >&2; exit 2 ;; esac
+
+. "$root/palettes/$mode.sh"
+
+state="${ROSEPINE_STATE_DIR:-$HOME/.local/state/rose-pine}"
+mkdir -p "$state"
+
+# Starship base: repo copy if present, else empty.
+base="$root/../stow/starship/.config/starship-base.toml"
+[ -f "$base" ] || base=/dev/null
+
+atomic() { # atomic <renderer> <file> [extra args]
+  local fn="$1" name="$2"; shift 2
+  local tmp="$state/.$name.$$"
+  "$fn" "$tmp" "$@"
+  mv -f "$tmp" "$state/$name"
+}
+atomic render_colors_sh colors.sh
+atomic render_tmux tmux.conf
+atomic render_starship starship.toml "$base"
+printf '%s\n' "$mode" > "$state/.mode.$$" && mv -f "$state/.mode.$$" "$state/mode"
+
+[ "${ROSEPINE_DRY_RUN:-}" = 1 ] && exit 0
+
+# Reloads: best effort, never affect exit status.
+dark=true; [ "$mode" = dawn ] && dark=false
+osascript -e "tell application \"System Events\" to tell appearance preferences to set dark mode to $dark" \
+  >/dev/null 2>&1 || echo "warning: could not set system appearance" >&2
+if command -v tmux >/dev/null 2>&1 && tmux ls >/dev/null 2>&1; then
+  tmux source-file "$state/tmux.conf" >/dev/null 2>&1 || echo "warning: tmux reload failed" >&2
+fi
+if command -v borders >/dev/null 2>&1 && pgrep -x borders >/dev/null 2>&1; then
+  borders "active_color=0xff$RP_IRIS" "inactive_color=0xff$RP_MUTED" >/dev/null 2>&1 || echo "warning: borders reload failed" >&2
+fi
+if command -v sketchybar >/dev/null 2>&1 && pgrep -x sketchybar >/dev/null 2>&1; then
+  sketchybar --reload >/dev/null 2>&1 || echo "warning: sketchybar reload failed" >&2
+fi
+exit 0
