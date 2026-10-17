@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# JankyBorders config; colors come from the Rose Pine state file.
+colors="$HOME/.local/state/rose-pine/colors.sh"
+if [ -f "$colors" ]; then
+  # shellcheck disable=SC1090
+  source "$colors"
+  exec borders style=round width=4.0 hidpi=on \
+    active_color="${RP_IRIS}" inactive_color="${RP_MUTED}"
+fi
+echo "bordersrc: $colors missing; starting borders without theme colors" >&2
+exec borders style=round width=4.0 hidpi=on
