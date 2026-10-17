@@ -1,0 +1,29 @@
+add_newline = false
+
+format = """
+[](fg:iris)\
+$directory\
+[](fg:iris bg:foam)\
+$git_branch\
+[](fg:foam bg:love)\
+$git_status\
+[](fg:love)\
+$character"""
+
+[directory]
+style = "fg:base bg:iris"
+format = "[ $path ]($style)"
+truncation_length = 3
+
+[git_branch]
+symbol = ""
+style = "fg:base bg:foam"
+format = "[ $symbol $branch ]($style)"
+
+[git_status]
+style = "fg:base bg:love"
+format = "[ $all_status$ahead_behind ]($style)"
+
+[character]
+success_symbol = "[ ❯](fg:rose)"
+error_symbol = "[ ❯](fg:love)"
