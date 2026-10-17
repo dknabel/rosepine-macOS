@@ -15,7 +15,7 @@ grep -q 'export RP_IRIS=0xffc4a7e7' "$state/colors.sh"
 echo "switch ok"
 
 # Starship base: missing file warns on stderr but still renders.
-err="$("$sw" dawn 2>&1 >/dev/null)"
+err="$(ROSEPINE_STARSHIP_BASE=/nonexistent/base.toml "$sw" dawn 2>&1 >/dev/null)"
 case "$err" in *"starship base not found"*) ;; *) echo "expected warning, got: $err" >&2; exit 1 ;; esac
 [ "$(head -n1 "$state/starship.toml")" = 'palette = "rp"' ]
 # Present file: appended, no warning.
@@ -24,3 +24,8 @@ err="$(ROSEPINE_STARSHIP_BASE="$state/base.toml" "$sw" dawn 2>&1 >/dev/null)"
 [ -z "$err" ] || { echo "unexpected stderr: $err" >&2; exit 1; }
 grep -q 'success_symbol = "x"' "$state/starship.toml"
 echo "starship base ok"
+
+# Real base is appended to the rendered starship config.
+"$sw" dawn
+grep -q '^\[directory\]' "$state/starship.toml" || { echo "base.toml not appended" >&2; exit 1; }
+echo "base ok"

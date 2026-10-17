@@ -21,7 +21,7 @@ tomllib.load(open(sys.argv[1],'rb'))" "$base" || fail "base.toml invalid TOML (p
 if grep -Eq '#[0-9a-fA-F]{6}' "$base"; then fail "hex literal in base.toml"; fi
 
 names="base surface overlay muted subtle text love gold rose pine foam iris"
-used="$( { grep -oE '(fg|bg):[a-z]+' "$base" | cut -d: -f2; grep -oE '(style|color) *= *"[a-z]+"' "$base" | sed -E 's/.*"([a-z]+)"/\1/'; } | sort -u)"
+used="$( { grep -oE '(fg|bg):[a-z]+' "$base" | cut -d: -f2 || true; grep -oE '(style|color) *= *"[a-z]+"' "$base" | sed -E 's/.*"([a-z]+)"/\1/' || true; } | sort -u)"
 for u in $used; do
   case " $names " in *" $u "*) ;; *) fail "unknown palette color '$u' in base.toml" ;; esac
 done
