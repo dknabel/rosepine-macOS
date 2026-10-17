@@ -21,9 +21,12 @@ case "$mode" in main|dawn) ;; *) echo "usage: rosepine-switch [auto|main|dawn]" 
 state="${ROSEPINE_STATE_DIR:-$HOME/.local/state/rose-pine}"
 mkdir -p "$state"
 
-# Starship base: repo copy if present, else empty.
-base="$root/../stow/starship/.config/starship-base.toml"
-[ -f "$base" ] || base=/dev/null
+# Starship base (override with ROSEPINE_STARSHIP_BASE, mainly for tests).
+base="${ROSEPINE_STARSHIP_BASE:-$root/../stow/starship/.config/starship/base.toml}"
+if [ ! -f "$base" ]; then
+  echo "warning: starship base not found: $base (rendering palette only)" >&2
+  base=/dev/null
+fi
 
 atomic() { # atomic <renderer> <file> [extra args]
   local fn="$1" name="$2"; shift 2
