@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "${0%/*}/env.sh"
 . "$HOME/.local/state/rose-pine/colors.sh" 2>/dev/null || true
 batt="$(pmset -g batt 2>/dev/null)"
 pct="$(printf '%s\n' "$batt" | grep -Eo '[0-9]+%' | head -n1 | tr -d '%')"

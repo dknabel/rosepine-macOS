@@ -73,7 +73,7 @@ run() {
   local mode="$1" plugin="$2"; shift 2
   log="$tmp/log.$mode.$plugin"; : > "$log"
   rc=0
-  env -i HOME="$HOME" PATH="$tmp/bin.$mode" SB_LOG="$log" NAME="$plugin" "$@" \
+  env -i HOME="$HOME" PATH="$tmp/bin.$mode" SB_LOG="$log" SKETCHYBAR_EXTRA_PATH=/nonexistent NAME="$plugin" "$@" \
     bash "$plugins/$plugin.sh" >"$tmp/out" 2>"$tmp/err" || rc=$?
 }
 has() { grep -qF -- "$1" "$log" || { echo "log was:"; cat "$log"; fail "expected '$1' ($CASE)"; }; }
@@ -140,5 +140,26 @@ grep -q 'aerospace_workspace_change' "$sb/sketchybarrc" || fail "event not regis
 for p in workspaces front_app clock battery wifi volume media github; do
   grep -q "items/$p.sh" "$sb/sketchybarrc" || grep -q 'items/\*\.sh\|items/' "$sb/sketchybarrc" || fail "items not sourced"
 done
+
+# 8. PATH: sketchybarrc and env.sh export Homebrew dirs; every plugin sources env.sh.
+want='export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"'
+grep -qF "$want" "$sb/sketchybarrc" || fail "sketchybarrc lacks PATH export"
+grep -q 'export PATH=.*/opt/homebrew/bin:/usr/local/bin' "$plugins/env.sh" || fail "env.sh lacks PATH export"
+for p in workspaces front_app clock battery wifi volume media github; do
+  grep -qF '. "${0%/*}/env.sh"' "$plugins/$p.sh" || fail "$p.sh does not source env.sh"
+done
+# Behavioral: a command living only in the extra PATH dir is found.
+extra="$tmp/extra"; mkdir -p "$extra"
+printf '#!/bin/sh\necho Ghostty\n' > "$extra/aerospace"; chmod +x "$extra/aerospace"
+CASE=path-extra; log="$tmp/log.path"; : > "$log"
+env -i HOME="$HOME" PATH="$tmp/bin.missing" SB_LOG="$log" SKETCHYBAR_EXTRA_PATH="$extra" \
+  NAME=workspace.4 FOCUSED_WORKSPACE=1 bash "$plugins/workspaces.sh" || fail "path-extra exit"
+has ":ghostty:"
+
+# 9. Item order: explicit, right side clock, battery, wifi, volume.
+order="$(grep -E '^for name in ' "$sb/sketchybarrc")"
+[ "$order" = "for name in workspaces front_app clock battery wifi volume github media; do" ] \
+  || fail "item order wrong: $order"
+! grep -q 'items/\*' "$sb/sketchybarrc" || fail "alphabetical glob still used"
 
 echo "sketchybar plugins ok"

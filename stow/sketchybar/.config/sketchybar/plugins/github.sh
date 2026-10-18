@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "${0%/*}/env.sh"
 . "$HOME/.local/state/rose-pine/colors.sh" 2>/dev/null || true
 hide() { sketchybar --set "$NAME" drawing=off 2>/dev/null; exit 0; }
 gh auth status >/dev/null 2>&1 || hide

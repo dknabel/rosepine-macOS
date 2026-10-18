@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "${0%/*}/env.sh"
 . "$HOME/.local/state/rose-pine/colors.sh" 2>/dev/null || true
 vol="$(osascript -e 'output volume of (get volume settings)' 2>/dev/null)"
 case "$vol" in

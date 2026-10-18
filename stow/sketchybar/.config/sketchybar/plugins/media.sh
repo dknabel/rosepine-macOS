@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "${0%/*}/env.sh"
 . "$HOME/.local/state/rose-pine/colors.sh" 2>/dev/null || true
 export LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
 hide() { sketchybar --set "$NAME" drawing=off 2>/dev/null; exit 0; }

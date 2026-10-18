@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 # SketchyBar config. Re-read on every `sketchybar --reload`, so colors.sh
 # (rendered by rosepine-switch) is sourced fresh each time.
 CONFIG_DIR="${CONFIG_DIR:-$HOME/.config/sketchybar}"
@@ -31,8 +32,10 @@ sketchybar --default \
 
 sketchybar --add event aerospace_workspace_change
 
-for item in "$CONFIG_DIR"/items/*.sh; do
-  [ -f "$item" ] && . "$item"
+# Explicit order matters: the first right-side item added sits at the screen
+# edge, so the right side reads (edge inward) clock, battery, wifi, volume.
+for name in workspaces front_app clock battery wifi volume github media; do
+  [ -f "$CONFIG_DIR/items/$name.sh" ] && . "$CONFIG_DIR/items/$name.sh"
 done
 
 sketchybar --update

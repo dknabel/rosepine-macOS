@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
+. "${0%/*}/env.sh"
 # Update one workspace item (NAME=workspace.N). Never prints errors to the bar.
 . "$HOME/.local/state/rose-pine/colors.sh" 2>/dev/null || true
-. "$(dirname "$0")/app_icon.sh"
+. "${0%/*}/app_icon.sh"
 
 sid="${NAME##*.}"
 focused="${FOCUSED_WORKSPACE:-}"
