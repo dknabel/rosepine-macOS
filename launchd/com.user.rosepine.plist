@@ -8,7 +8,7 @@
   <array>
     <string>/bin/bash</string>
     <string>-c</string>
-    <string>__HOME__/.local/bin/rosepine-switch auto</string>
+    <string>"__HOME__/.local/bin/rosepine-switch" auto</string>
   </array>
   <key>RunAtLoad</key>
   <true/>

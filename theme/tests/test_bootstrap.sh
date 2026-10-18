@@ -35,3 +35,25 @@ plutil -lint "$pl" >/dev/null || fail "installed plist lint"
 grep -q '^bootstrap ' "$tmp/calls" || fail "launchctl bootstrap not called"
 [ -d "$HOME/.local/state/rose-pine" ] || fail "state dir missing"
 echo "ok test_bootstrap"
+
+# HOME with special characters: plist stays valid and command is quoted exact path.
+for name in "sp ace" "am&p" 'pi|pe' 'back\slash'; do
+  export HOME="$tmp/$name"; mkdir -p "$HOME"
+  install_launchd_agent
+  pl="$HOME/Library/LaunchAgents/com.user.rosepine.plist"
+  plutil -lint "$pl" >/dev/null || fail "lint failed for HOME '$name'"
+  cmd="$(plutil -extract ProgramArguments.2 raw "$pl")"
+  [ "$cmd" = "\"$HOME/.local/bin/rosepine-switch\" auto" ] || fail "command wrong for '$name': $cmd"
+  [ "$(plutil -extract StandardOutPath raw "$pl")" = "$HOME/.local/state/rose-pine/switch.log" ] || fail "logpath '$name'"
+done
+
+# launchctl bootstrap failure: warn, return 0 even under set -e, retry once.
+export HOME="$tmp/failhome"; mkdir -p "$HOME"
+bad="$tmp/badlaunchctl"
+printf '#!/bin/sh\necho "$@" >> "%s/badcalls"\n[ "$1" = bootstrap ] && exit 5\nexit 0\n' "$tmp" > "$bad"; chmod +x "$bad"
+err="$(LAUNCHCTL="$bad" LAUNCHD_RETRY_SLEEP=0 bash -ec "source '$root/bootstrap.sh'; install_launchd_agent; echo reached" 2>&1 >"$tmp/stdout")" || fail "function returned nonzero"
+grep -q reached "$tmp/stdout" || fail "later steps did not run"
+echo "$err" | grep -q 'warn: launchctl bootstrap failed' || fail "no warning: $err"
+echo "$err" | grep -q 'launchctl bootstrap gui/' || fail "no retry command"
+[ "$(grep -c '^bootstrap ' "$tmp/badcalls")" = 2 ] || fail "expected one retry"
+echo "ok test_bootstrap failure/escaping"

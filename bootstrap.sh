@@ -45,10 +45,24 @@ install_launchd_agent() {
   local src="$REPO_DIR/launchd/$LABEL.plist"
   local dest_dir="$HOME/Library/LaunchAgents"
   local dest="$dest_dir/$LABEL.plist"
+  local content esc
   mkdir -p "$dest_dir" "$HOME/.local/state/rose-pine"
-  sed "s|__HOME__|$HOME|g" "$src" > "$dest"
+  # XML-escape HOME (& first), then substitute without sed.
+  esc="$HOME"
+  esc="${esc//&/&amp;}"; esc="${esc//</&lt;}"; esc="${esc//>/&gt;}"
+  esc="${esc//\"/&quot;}"; esc="${esc//\'/&apos;}"
+  shopt -u patsub_replacement 2>/dev/null || true  # bash 5.2: keep & literal
+  content="$(cat "$src")"
+  printf '%s\n' "${content//__HOME__/$esc}" > "$dest"
   "$LAUNCHCTL" bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true
-  "$LAUNCHCTL" bootstrap "gui/$(id -u)" "$dest"
+  if ! "$LAUNCHCTL" bootstrap "gui/$(id -u)" "$dest"; then
+    sleep "${LAUNCHD_RETRY_SLEEP:-2}"
+    if ! "$LAUNCHCTL" bootstrap "gui/$(id -u)" "$dest"; then
+      echo "warn: launchctl bootstrap failed for $LABEL; schedule not loaded. Retry manually:" >&2
+      echo "  launchctl bootstrap gui/$(id -u) \"$dest\"" >&2
+    fi
+  fi
+  return 0
 }
 
 start_services() {
