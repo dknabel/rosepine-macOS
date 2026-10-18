@@ -12,8 +12,9 @@ check_prereqs() {
 }
 
 run_stow() {
-  # .gitkeep placeholders must not be linked into $HOME.
-  local STOW_ARGS=(-d "$REPO_DIR/stow" -t "$HOME" --ignore='^/\.gitkeep$')
+  # --no-folding: link files, not directories, so tools writing into ~/.config/*
+  # never write into the repo.
+  local STOW_ARGS=(-d "$REPO_DIR/stow" -t "$HOME" --no-folding)
   local packages=() d out
   for d in "$REPO_DIR"/stow/*/; do packages+=("$(basename "$d")"); done
 
@@ -29,7 +30,7 @@ run_stow() {
 install_zshrc_hook() {
   local rc="$HOME/.zshrc"
   touch "$rc"
-  if grep -qF '# >>> rose-pine rice >>>' "$rc"; then return 0; fi
+  if grep -qxF '# >>> rose-pine rice >>>' "$rc"; then return 0; fi
   cat >> "$rc" <<'BLOCK'
 
 # >>> rose-pine rice >>>
@@ -84,7 +85,10 @@ MSG
 main() {
   cd "$REPO_DIR"
   check_prereqs
-  brew bundle --file Brewfile
+  if ! brew bundle --file Brewfile; then
+    echo "error: brew bundle failed. If it names an untrusted tap, run the trust command brew prints for it (e.g. for nikitabobko/tap), then re-run ./bootstrap.sh" >&2
+    exit 1
+  fi
   run_stow
   install_zshrc_hook
   install_launchd_agent

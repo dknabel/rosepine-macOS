@@ -26,7 +26,7 @@ for u in $used; do
   case " $names " in *" $u "*) ;; *) fail "unknown palette color '$u' in base.toml" ;; esac
 done
 
-grep -qxF 'theme = light:rose-pine-dawn,dark:rose-pine' "$ghostty" || fail "ghostty theme line"
+grep -qxF 'theme = light:Rose Pine Dawn,dark:Rose Pine' "$ghostty" || fail "ghostty theme line"
 
 grep -qF 'STARSHIP_CONFIG="$HOME/.local/state/rose-pine/starship.toml"' "$zshf" || fail "STARSHIP_CONFIG not set"
 if command -v zsh >/dev/null 2>&1; then zsh -n "$zshf" || fail "zsh -n"; fi

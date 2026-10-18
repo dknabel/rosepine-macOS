@@ -10,6 +10,12 @@ exec-on-workspace-change = ['/bin/bash', '-c',
     'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE'
 ]
 
+[exec]
+inherit-env-vars = true
+
+[exec.env-vars]
+PATH = '/opt/homebrew/bin:/opt/homebrew/sbin:${PATH}'
+
 [gaps]
 inner.horizontal = 10
 inner.vertical = 10

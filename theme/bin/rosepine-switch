@@ -38,13 +38,9 @@ atomic render_colors_sh colors.sh
 atomic render_tmux tmux.conf
 atomic render_starship starship.toml "$base"
 printf '%s\n' "$mode" > "$state/.mode.$$" && mv -f "$state/.mode.$$" "$state/mode"
-
 [ "${ROSEPINE_DRY_RUN:-}" = 1 ] && exit 0
 
 # Reloads: best effort, never affect exit status.
-dark=true; [ "$mode" = dawn ] && dark=false
-osascript -e "tell application \"System Events\" to tell appearance preferences to set dark mode to $dark" \
-  >/dev/null 2>&1 || echo "warning: could not set system appearance" >&2
 if command -v tmux >/dev/null 2>&1 && tmux ls >/dev/null 2>&1; then
   tmux source-file "$state/tmux.conf" >/dev/null 2>&1 || echo "warning: tmux reload failed" >&2
 fi
@@ -54,4 +50,18 @@ fi
 if command -v sketchybar >/dev/null 2>&1 && pgrep -x sketchybar >/dev/null 2>&1; then
   sketchybar --reload >/dev/null 2>&1 || echo "warning: sketchybar reload failed" >&2
 fi
+
+# Appearance flip last, backgrounded with a watchdog so a hanging Automation
+# prompt can never block the reloads above. Never affects exit status.
+dark=true; [ "$mode" = dawn ] && dark=false
+osascript -e "tell application \"System Events\" to tell appearance preferences to set dark mode to $dark" \
+  >/dev/null 2>&1 &
+os_pid=$!
+(
+  sleep "${ROSEPINE_OSASCRIPT_TIMEOUT:-10}"
+  kill "$os_pid" 2>/dev/null
+) >/dev/null 2>&1 &
+wd_pid=$!
+wait "$os_pid" 2>/dev/null || echo "warning: could not set system appearance" >&2
+kill "$wd_pid" 2>/dev/null || true
 exit 0

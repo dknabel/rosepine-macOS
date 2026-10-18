@@ -31,6 +31,8 @@ cmd = ' '.join(c.get('exec-on-workspace-change', []))
 need('aerospace_workspace_change' in cmd, 'event name')
 need('FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE' in cmd, 'FOCUSED_WORKSPACE')
 need(any('borders' in s for s in c.get('after-startup-command', [])), 'borders startup')
+need(c.get('exec', {}).get('inherit-env-vars') is True, 'exec.inherit-env-vars')
+need(c.get('exec', {}).get('env-vars', {}).get('PATH', '').startswith('/opt/homebrew/bin:/opt/homebrew/sbin:'), 'exec.env-vars.PATH')
 b = c.get('mode', {}).get('main', {}).get('binding', {})
 keys = ['alt-' + k for k in 'hjkl'] + ['alt-shift-' + k for k in 'hjkl']
 keys += ['alt-%d' % i for i in range(1, 10)] + ['alt-shift-%d' % i for i in range(1, 10)]

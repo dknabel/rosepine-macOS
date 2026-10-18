@@ -134,6 +134,19 @@ CASE=ws-empty-hidden; run data workspaces NAME=workspace.7 FOCUSED_WORKSPACE=5; 
 CASE=ws-empty-focused; run data workspaces NAME=workspace.7 FOCUSED_WORKSPACE=7
 has "drawing=on"; has "background.color=0xff00000c"
 
+CASE=ws-sender-fallback
+cp "$tmp/bin.data/aerospace" "$tmp/aerospace.orig"
+printf '#!/bin/sh\ncase "$*" in *"--focused"*) echo 5;; *"--workspace 2"*) echo Ghostty;; esac\n' > "$tmp/bin.data/aerospace"
+run data workspaces NAME=workspace.5 SENDER=front_app_switched
+has "background.color=0xff00000c"
+run data workspaces NAME=workspace.2 SENDER=space_windows_change
+has "background.color=0xff000003"; hasnt "background.color=0xff00000c"
+cp "$tmp/aerospace.orig" "$tmp/bin.data/aerospace"
+for ev in aerospace_workspace_change front_app_switched space_windows_change; do
+  grep -qE -- "--subscribe .*$ev" "$sb/items/workspaces.sh" || fail "workspaces item not subscribed to $ev"
+done
+! grep -q -- '--add event.*space_windows_change' "$sb"/sketchybarrc "$sb"/items/*.sh || fail "built-in event re-registered"
+
 # 7. sketchybarrc sources colors, has fallback block, and references all items.
 grep -q 'colors.sh' "$sb/sketchybarrc" || fail "sketchybarrc does not source colors.sh"
 grep -q 'aerospace_workspace_change' "$sb/sketchybarrc" || fail "event not registered"
