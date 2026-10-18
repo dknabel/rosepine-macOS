@@ -16,12 +16,13 @@ inherit-env-vars = true
 [exec.env-vars]
 PATH = '/opt/homebrew/bin:/opt/homebrew/sbin:${PATH}'
 
+# notch reserves 32px at the top; bar ends at y=42, so 20 leaves a 10px gap below it
 [gaps]
 inner.horizontal = 10
 inner.vertical = 10
 outer.left = 10
 outer.bottom = 10
-outer.top = 50
+outer.top = 20
 outer.right = 10
 
 [mode.main.binding]
