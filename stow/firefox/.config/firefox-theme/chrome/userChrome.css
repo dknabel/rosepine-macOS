@@ -1,0 +1,40 @@
+@import url("colors.css");
+
+:root {
+  --lwt-accent-color: var(--rp-base) !important;
+  --lwt-text-color: var(--rp-text) !important;
+  --toolbar-bgcolor: var(--rp-surface) !important;
+  --toolbar-color: var(--rp-text) !important;
+  --toolbar-field-background-color: var(--rp-overlay) !important;
+  --toolbar-field-color: var(--rp-text) !important;
+  --toolbar-field-focus-background-color: var(--rp-overlay) !important;
+  --toolbar-field-focus-color: var(--rp-text) !important;
+  --toolbar-field-border-color: transparent !important;
+  --toolbar-field-focus-border-color: var(--rp-iris) !important;
+  --tab-selected-bgcolor: var(--rp-surface) !important;
+  --tab-selected-textcolor: var(--rp-text) !important;
+  --tab-loading-fill: var(--rp-iris) !important;
+  --urlbar-box-bgcolor: var(--rp-overlay) !important;
+  --urlbar-box-text-color: var(--rp-text) !important;
+  --sidebar-background-color: var(--rp-base) !important;
+  --sidebar-text-color: var(--rp-text) !important;
+  --arrowpanel-background: var(--rp-surface) !important;
+  --arrowpanel-color: var(--rp-text) !important;
+  --arrowpanel-border-color: var(--rp-overlay) !important;
+  --focus-outline-color: var(--rp-iris) !important;
+  --button-primary-bgcolor: var(--rp-iris) !important;
+  --button-primary-color: var(--rp-base) !important;
+  --toolbarbutton-hover-background: var(--rp-overlay) !important;
+  --toolbarbutton-active-background: var(--rp-muted) !important;
+  --autocomplete-popup-background: var(--rp-surface) !important;
+  --autocomplete-popup-color: var(--rp-text) !important;
+  --autocomplete-popup-highlight-background: var(--rp-overlay) !important;
+  --autocomplete-popup-highlight-color: var(--rp-text) !important;
+}
+
+#navigator-toolbox, #TabsToolbar, #nav-bar, #PersonalToolbar { background: var(--rp-base) !important; border: none !important; }
+#nav-bar { background: var(--rp-surface) !important; }
+.tab-background[selected] { background: var(--rp-overlay) !important; box-shadow: none !important; }
+.tab-label { font-family: "Hack Nerd Font", monospace !important; }
+#urlbar-background { border-radius: 10px !important; border: 2px solid transparent !important; }
+#urlbar[focused] > #urlbar-background { border-color: var(--rp-iris) !important; }

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Start</title>
+<style>
+  /* Rose Pine main (night) is the default; dawn applies 07:00-18:59, same as rosepine-switch */
+  :root {
+    --base: #191724; --surface: #1f1d2e; --overlay: #26233a; --muted: #6e6a86;
+    --subtle: #908caa; --text: #e0def4; --love: #eb6f92; --gold: #f6c177;
+    --rose: #ebbcba; --pine: #31748f; --foam: #9ccfd8; --iris: #c4a7e7;
+    color-scheme: dark;
+  }
+  :root[data-theme="dawn"] {
+    --base: #faf4ed; --surface: #fffaf3; --overlay: #f2e9e1; --muted: #9893a5;
+    --subtle: #797593; --text: #575279; --love: #b4637a; --gold: #ea9d34;
+    --rose: #d7827e; --pine: #286983; --foam: #56949f; --iris: #907aa9;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    min-height: 100vh; display: grid; place-content: center; gap: 40px;
+    padding: 40px 16px; justify-items: center; text-align: center;
+    background: var(--base); color: var(--text);
+    font: 16px/1.5 "Hack Nerd Font", "Hack Nerd Font Mono", Hack, ui-monospace, Menlo, monospace;
+    transition: background .6s, color .6s;
+  }
+  #clock { font-size: clamp(56px, 12vw, 112px); font-weight: 700; color: var(--rose); line-height: 1; }
+  #greeting { margin-top: 12px; color: var(--subtle); }
+  form { width: min(560px, 100%); }
+  input {
+    width: 100%; padding: 14px 18px; font: inherit; color: var(--text);
+    background: var(--surface); border: 2px solid var(--overlay); border-radius: 12px; outline: none;
+    transition: border-color .2s;
+  }
+  input::placeholder { color: var(--muted); }
+  input:focus { border-color: var(--iris); }
+  nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 640px; }
+  nav a {
+    padding: 8px 16px; color: var(--text); text-decoration: none;
+    background: var(--surface); border: 2px solid var(--overlay); border-radius: 10px;
+    transition: border-color .2s, color .2s;
+  }
+  nav a:hover, nav a:focus-visible { border-color: var(--c); color: var(--c); outline: none; }
+  nav a:nth-child(5n+1) { --c: var(--love); }
+  nav a:nth-child(5n+2) { --c: var(--gold); }
+  nav a:nth-child(5n+3) { --c: var(--foam); }
+  nav a:nth-child(5n+4) { --c: var(--iris); }
+  nav a:nth-child(5n+5) { --c: var(--pine); }
+</style>
+</head>
+<body>
+  <header>
+    <div id="clock">--:--</div>
+    <div id="greeting"></div>
+  </header>
+  <form action="https://duckduckgo.com/" method="get">
+    <input name="q" type="search" placeholder="search" autofocus autocomplete="off">
+  </form>
+  <!-- edit these links -->
+  <nav>
+    <a href="https://github.com">github</a>
+    <a href="https://mail.google.com">mail</a>
+    <a href="https://calendar.google.com">calendar</a>
+    <a href="https://news.ycombinator.com">hacker news</a>
+    <a href="https://www.youtube.com">youtube</a>
+    <a href="https://claude.ai">claude</a>
+  </nav>
+<script>
+  function tick() {
+    var d = new Date(), h = d.getHours();
+    var forced = new URLSearchParams(location.search).get('theme');
+    document.documentElement.dataset.theme = forced || (h >= 7 && h < 19 ? 'dawn' : 'main');
+    document.getElementById('clock').textContent =
+      String(h).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    document.getElementById('greeting').textContent =
+      (h < 5 ? 'still up' : h < 12 ? 'good morning' : h < 18 ? 'good afternoon' : 'good evening') +
+      ' · ' + d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+  }
+  tick();
+  setInterval(tick, 30000);
+</script>
+</body>
+</html>

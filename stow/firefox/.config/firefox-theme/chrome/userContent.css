@@ -1,0 +1,14 @@
+@import url("colors.css");
+
+@-moz-document url(about:home), url(about:newtab), url(about:privatebrowsing) {
+  body, :root {
+    --newtab-background-color: var(--rp-base) !important;
+    --newtab-background-color-secondary: var(--rp-surface) !important;
+    --newtab-text-primary-color: var(--rp-text) !important;
+    --newtab-element-hover-color: var(--rp-overlay) !important;
+    --newtab-primary-action-background: var(--rp-iris) !important;
+    --newtab-border-color: var(--rp-overlay) !important;
+    font-family: "Hack Nerd Font", monospace !important;
+  }
+  body { background: var(--rp-base) !important; }
+}

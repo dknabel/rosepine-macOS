@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Link the Rose Pine chrome/ and user.js into a Firefox profile (default: the install's default).
+set -euo pipefail
+src="$HOME/.config/firefox-theme"
+base="$HOME/Library/Application Support/Firefox"
+profile="${1:-$base/$(awk -F= '/^\[Install/{i=1} i&&/^Default=/{print $2; exit}' "$base/profiles.ini")}"
+[ -d "$profile" ] || { echo "profile not found: $profile" >&2; exit 1; }
+ln -sfn "$src/chrome" "$profile/chrome"
+ln -sf "$src/user.js" "$profile/user.js"
+echo "linked into $profile; restart Firefox"

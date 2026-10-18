@@ -18,9 +18,21 @@ for it (e.g. for nikitabobko/tap), then re-run `./bootstrap.sh`.
 ## Things to know
 - The first install flips the system appearance immediately (to light if run 07:00-18:59).
 - Hide the macOS menu bar (System Settings > Control Center > Automatically hide and
-  show the menu bar): SketchyBar replaces it and AeroSpace reserves 50px at the top.
+  show the menu bar): SketchyBar replaces it and AeroSpace leaves a 20px top gap (the notch reserves 32px more).
 - Moving the repo: first run `stow -D -d stow -t ~ <packages>` from the old location,
   then re-run `./bootstrap.sh`. `rosepine-switch` reads the Starship base from the repo copy.
+
+## Firefox start page
+Stowed to `~/.config/startpage/index.html` (Rose Pine dawn 07:00-18:59, main otherwise, live clock).
+Set Firefox Settings > Home > Homepage to `file:///Users/<you>/.config/startpage/index.html`.
+Append `?theme=dawn` or `?theme=main` to force a palette. Edit the link list in the file.
+Firefox's New Tab page ignores this; use a new-tab-override extension if you want it there.
+
+## Firefox theme
+`userChrome.css`/`userContent.css` in `~/.config/firefox-theme`, linked into your default profile by
+`install-firefox-theme [profile-dir]` (on PATH after stow; already run for the default profile).
+It also enables `toolkit.legacyUserProfileCustomizations.stylesheets` via `user.js`. Restart Firefox.
+Colors follow the system appearance, so set Firefox Settings > Extensions & Themes > System theme (auto).
 
 ## Modes
 Automatic: 07:00 and 19:00 and at login (dawn 07-18, main otherwise).

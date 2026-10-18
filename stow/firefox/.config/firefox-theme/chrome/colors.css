@@ -1,0 +1,14 @@
+/* Rose Pine main (dark) by default, dawn when the system appearance is light.
+   rosepine-switch flips the system appearance at 07:00 and 19:00. */
+:root {
+  --rp-base: #191724; --rp-surface: #1f1d2e; --rp-overlay: #26233a; --rp-muted: #6e6a86;
+  --rp-subtle: #908caa; --rp-text: #e0def4; --rp-love: #eb6f92; --rp-gold: #f6c177;
+  --rp-rose: #ebbcba; --rp-pine: #31748f; --rp-foam: #9ccfd8; --rp-iris: #c4a7e7;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --rp-base: #faf4ed; --rp-surface: #fffaf3; --rp-overlay: #f2e9e1; --rp-muted: #9893a5;
+    --rp-subtle: #797593; --rp-text: #575279; --rp-love: #b4637a; --rp-gold: #ea9d34;
+    --rp-rose: #d7827e; --rp-pine: #286983; --rp-foam: #56949f; --rp-iris: #907aa9;
+  }
+}
