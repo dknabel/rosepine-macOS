@@ -47,11 +47,11 @@ install_launchd_agent() {
   local dest="$dest_dir/$LABEL.plist"
   local content esc
   mkdir -p "$dest_dir" "$HOME/.local/state/rose-pine"
+  shopt -u patsub_replacement 2>/dev/null || true  # bash 5.2: keep & literal
   # XML-escape HOME (& first), then substitute without sed.
   esc="$HOME"
   esc="${esc//&/&amp;}"; esc="${esc//</&lt;}"; esc="${esc//>/&gt;}"
   esc="${esc//\"/&quot;}"; esc="${esc//\'/&apos;}"
-  shopt -u patsub_replacement 2>/dev/null || true  # bash 5.2: keep & literal
   content="$(cat "$src")"
   printf '%s\n' "${content//__HOME__/$esc}" > "$dest"
   "$LAUNCHCTL" bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true

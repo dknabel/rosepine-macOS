@@ -57,3 +57,10 @@ echo "$err" | grep -q 'warn: launchctl bootstrap failed' || fail "no warning: $e
 echo "$err" | grep -q 'launchctl bootstrap gui/' || fail "no retry command"
 [ "$(grep -c '^bootstrap ' "$tmp/badcalls")" = 2 ] || fail "expected one retry"
 echo "ok test_bootstrap failure/escaping"
+
+# Static: patsub_replacement must be disabled before the first escape (bash 5.2 makes & special).
+fn="$(sed -n '/^install_launchd_agent()/,/^}/p' "$root/bootstrap.sh")"
+shopt_line="$(echo "$fn" | grep -n 'shopt -u patsub_replacement' | head -1 | cut -d: -f1)"
+esc_line="$(echo "$fn" | grep -n 'esc="\${esc//' | head -1 | cut -d: -f1)"
+[ -n "$shopt_line" ] && [ -n "$esc_line" ] && [ "$shopt_line" -lt "$esc_line" ] || fail "shopt must precede escapes"
+echo "ok test_bootstrap shopt order"
