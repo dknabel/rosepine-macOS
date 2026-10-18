@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# SketchyBar config. Re-read on every `sketchybar --reload`, so colors.sh
+# (rendered by rosepine-switch) is sourced fresh each time.
+CONFIG_DIR="${CONFIG_DIR:-$HOME/.config/sketchybar}"
+COLORS="$HOME/.local/state/rose-pine/colors.sh"
+
+# shellcheck disable=SC1090
+if ! . "$COLORS" 2>/dev/null; then
+  echo "sketchybarrc: $COLORS not found; using built-in Rose Pine main palette" >&2
+  # Fallback block: keep identical to theme/palettes/main.sh (as 0xffRRGGBB).
+  RP_BASE=0xff191724; RP_SURFACE=0xff1f1d2e; RP_OVERLAY=0xff26233a
+  RP_MUTED=0xff6e6a86; RP_SUBTLE=0xff908caa; RP_TEXT=0xffe0def4
+  RP_LOVE=0xffeb6f92; RP_GOLD=0xfff6c177; RP_ROSE=0xffebbcba
+  RP_PINE=0xff31748f; RP_FOAM=0xff9ccfd8; RP_IRIS=0xffc4a7e7
+  export RP_BASE RP_SURFACE RP_OVERLAY RP_MUTED RP_SUBTLE RP_TEXT \
+    RP_LOVE RP_GOLD RP_ROSE RP_PINE RP_FOAM RP_IRIS
+fi
+
+FONT="Hack Nerd Font"
+APP_FONT="sketchybar-app-font"
+
+sketchybar --bar position=top height=36 y_offset=6 margin=10 corner_radius=12 \
+  padding_left=10 padding_right=10 color="$RP_SURFACE" border_width=2 \
+  border_color="$RP_OVERLAY" blur_radius=20
+
+sketchybar --default \
+  icon.font="$FONT:Regular:14.0" label.font="$FONT:Regular:14.0" \
+  icon.color="$RP_TEXT" label.color="$RP_TEXT" \
+  padding_left=5 padding_right=5 icon.padding_left=4 icon.padding_right=4 \
+  label.padding_left=4 label.padding_right=4
+
+sketchybar --add event aerospace_workspace_change
+
+for item in "$CONFIG_DIR"/items/*.sh; do
+  [ -f "$item" ] && . "$item"
+done
+
+sketchybar --update
