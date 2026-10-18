@@ -2,7 +2,8 @@ tap "nikitabobko/tap"
 tap "FelixKratz/formulae"
 
 cask "nikitabobko/tap/aerospace"
-cask "ghostty"
+# Brew can't adopt an existing /Applications/Ghostty.app without sudo, so skip it if present.
+cask "ghostty" unless File.exist?("/Applications/Ghostty.app")
 cask "font-hack-nerd-font"
 cask "font-sketchybar-app-font"
 
