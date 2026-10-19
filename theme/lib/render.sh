@@ -31,14 +31,16 @@ render_tmux() {
   } > "$1"
 }
 
+# Top-level keys (palette, and base.toml's add_newline/format) must precede any
+# [table] header, or TOML assigns them to that table. So the palette table goes last.
 render_starship() {
   local n
   {
     echo 'palette = "rp"'
     echo
+    cat "$2"
+    echo
     echo '[palettes.rp]'
     for n in $RP_NAMES; do echo "$(_rp_lower "$n") = \"#$(_rp_val "$n")\""; done
-    echo
-    cat "$2"
   } > "$1"
 }

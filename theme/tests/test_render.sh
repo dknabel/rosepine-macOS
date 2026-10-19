@@ -12,5 +12,6 @@ render_starship "$tmp/s.toml" "$tmp/base.toml"
 [ "$(head -n1 "$tmp/s.toml")" = 'palette = "rp"' ] || { echo "bad first line" >&2; exit 1; }
 has "$tmp/s.toml" 'base = "#faf4ed"'
 has "$tmp/s.toml" '[palettes.rp]'
-[ "$(tail -n2 "$tmp/s.toml")" = "$(cat "$tmp/base.toml")" ] || { echo "base not at end" >&2; exit 1; }
+[ "$(sed -n '3,4p' "$tmp/s.toml")" = "$(cat "$tmp/base.toml")" ] || { echo "base must follow palette line" >&2; exit 1; }
+[ "$(grep -n '^\[' "$tmp/s.toml" | tail -n1 | cut -d: -f2)" = '[palettes.rp]' ] || { echo "palette table must be last" >&2; exit 1; }
 echo "render ok"
