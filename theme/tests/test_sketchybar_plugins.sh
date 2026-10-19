@@ -15,6 +15,7 @@ for p in workspaces front_app clock battery wifi volume media github theme; do
   bash -n "$sb/items/$p.sh" || fail "syntax items/$p.sh"
 done
 bash -n "$sb/sketchybarrc" || fail "syntax sketchybarrc"
+[ -x "$plugins/vitals.sh" ] && bash -n "$plugins/vitals.sh" || fail "plugin vitals.sh missing, not executable or bad syntax"
 
 # Fixture colors (distinct from the real palette) so assertions prove sourcing.
 export HOME="$tmp/home"
@@ -45,7 +46,7 @@ S
   }
   case "$mode" in
     fail)
-      for t in aerospace pmset networksetup ipconfig osascript nowplaying-cli gh; do
+      for t in aerospace pmset networksetup ipconfig osascript nowplaying-cli gh ps sysctl vm_stat df route netstat; do
         stub "$t" 'echo "command not found: error: boom"; echo "error: boom" >&2; exit 1'
       done ;;
     nodata)
@@ -63,7 +64,13 @@ S
       stub networksetup 'echo "Current Wi-Fi Network: HomeNet"'
       stub osascript 'case "$*" in *muted*) echo false;; *) echo 42;; esac'
       stub nowplaying-cli 'echo "A Very Long Song Title That Goes On And On Forever"; echo "Some Artist"'
-      stub gh 'case "$1" in auth) exit 0;; esac; echo 7' ;;
+      stub gh 'case "$1" in auth) exit 0;; esac; echo 7'
+      stub sysctl 'case "$*" in *hw.ncpu*) echo 10;; *hw.memsize*) echo 17179869184;; esac'
+      stub ps 'printf "%s\n" 50.0 150.0'
+      stub vm_stat 'printf "%s\n" "Mach Virtual Memory Statistics: (page size of 16384 bytes)" "Pages active:    400000." "Pages wired down:    100000." "Pages occupied by compressor:    100000."'
+      stub df 'printf "%s\n" "Filesystem 1K-blocks Used Available Capacity iused ifree %iused Mounted" "/dev/x 1000 500 500 91% 1 1 0% /System/Volumes/Data"'
+      stub route 'echo "  interface: en0"'
+      stub netstat 'echo "en0 1500 <Link#14> aa:bb:cc:dd:ee:ff 10 0 $NETBYTES 5 0 $((NETBYTES / 2)) 0"' ;;
   esac
 }
 for m in missing fail nodata data; do build_bin "$m"; done
@@ -81,7 +88,7 @@ hasnt() { ! grep -qF -- "$1" "$log" || { echo "log was:"; cat "$log"; fail "unex
 
 # 1. Every plugin exits 0 in every scenario; no error strings reach the bar.
 for m in missing fail nodata data; do
-  for p in workspaces front_app clock battery wifi volume media github theme; do
+  for p in workspaces front_app clock battery wifi volume media github theme vitals; do
     CASE="$m/$p"
     nm="$p"; [ "$p" = workspaces ] && nm=workspace.2
     run "$m" "$p" NAME="$nm" FOCUSED_WORKSPACE=2 INFO="Safari" SENDER=forced
@@ -158,6 +165,25 @@ CASE=theme-pinned; run data theme; has "label.drawing=on"; has $'label=\xef\x80\
 rm -f "$sdir/mode" "$sdir/pin"
 CASE=theme-nostate; run missing theme; has "label.drawing=off"
 grep -q 'rosepine-switch.* toggle' "$sb/items/theme.sh" || fail "theme item click does not toggle"
+
+# 6c. Vitals popup rows and clock hover events.
+rm -f "$sdir/net.sample"
+CASE=vitals-data; run data vitals NETBYTES=1000000
+has "vitals.cpu"; has "CPU  20%"; has "MEM  57%"; has "DSK  91%"
+has "icon.color=0xff000007"        # 91% disk is love
+has "icon.color=0xff00000b"        # 20% cpu is foam
+has "NET  ↓–  ↑–"                  # first sample has no baseline
+printf '%s 1000000 500000\n' "$(( $(date +%s) - 2 ))" > "$sdir/net.sample"
+CASE=vitals-net-rate; run data vitals NETBYTES=1409600; has "NET  ↓200K  ↑100K"
+for m in missing fail nodata; do
+  CASE="vitals-$m"; run "$m" vitals
+  for r in cpu mem disk net; do has "vitals.$r"; done
+  hasnt "drawing=on"
+done
+CASE=clock-hover; run data clock SENDER=mouse.entered; has "popup.drawing=on"
+CASE=clock-leave; run data clock SENDER=mouse.exited.global; has "popup.drawing=off"
+grep -qE -- '--subscribe clock mouse.entered mouse.exited.global' "$sb/items/clock.sh" || fail "clock not subscribed to mouse events"
+grep -q 'popup.clock' "$sb/items/clock.sh" || fail "vitals rows not attached to the clock popup"
 
 # 7. sketchybarrc sources colors, has fallback block, and references all items.
 grep -q 'colors.sh' "$sb/sketchybarrc" || fail "sketchybarrc does not source colors.sh"
