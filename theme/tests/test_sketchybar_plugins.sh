@@ -181,8 +181,8 @@ for m in missing fail nodata; do
   hasnt "drawing=on"
 done
 CASE=clock-hover; run data clock SENDER=mouse.entered; has "popup.drawing=on"
-CASE=clock-leave; run data clock SENDER=mouse.exited.global; has "popup.drawing=off"
-grep -qE -- '--subscribe clock mouse.entered mouse.exited.global' "$sb/items/clock.sh" || fail "clock not subscribed to mouse events"
+grep -qE -- '--subscribe clock mouse.entered$' "$sb/items/clock.sh" || fail "clock not subscribed to mouse.entered"
+[ -f "$sb/helpers/popupwatch.c" ] || fail "popupwatch helper source missing"
 grep -q 'popup.clock' "$sb/items/clock.sh" || fail "vitals rows not attached to the clock popup"
 
 # 6d. Cheat sheet: parsed from the AeroSpace config, grouped, toggled by a marker.

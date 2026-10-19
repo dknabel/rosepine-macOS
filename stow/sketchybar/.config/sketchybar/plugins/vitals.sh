@@ -10,7 +10,8 @@ gauge() { # gauge <pct>: eight-segment bar
   local n=$(( ($1 * 8 + 50) / 100 )) i out=""
   [ "$n" -gt 8 ] && n=8
   for ((i = 0; i < 8; i++)); do
-    if [ "$i" -lt "$n" ]; then out="$out▰"; else out="$out▱"; fi
+    # Braces matter: bash 3.2 mangles a multibyte char directly after "$out".
+    if [ "$i" -lt "$n" ]; then out="${out}▰"; else out="${out}▱"; fi
   done
   printf '%s' "$out"
 }
