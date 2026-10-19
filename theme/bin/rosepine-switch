@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# rosepine-switch [auto|tick|main|dawn|location <lat> <lon>]
+# rosepine-switch [auto|tick|main|dawn|toggle|status|location <lat> <lon>]
 set -euo pipefail
 
 src="${BASH_SOURCE[0]}"
@@ -14,18 +14,44 @@ root="$(cd "$(dirname "$src")/.." && pwd)"
 . "$root/lib/solar.sh"
 
 state="${ROSEPINE_STATE_DIR:-$HOME/.local/state/rose-pine}"
-usage() { echo "usage: rosepine-switch [auto|tick|main|dawn|location <lat> <lon>]" >&2; exit 2; }
+usage() { echo "usage: rosepine-switch [auto|tick|main|dawn|toggle|status|location <lat> <lon>]" >&2; exit 2; }
+
+# A pin ("<mode> <auto mode when pinned>") holds until the automatic mode changes.
+pin="$state/pin"
+effective_mode() { # prints the mode after applying a still-valid pin
+  local auto pinned pinned_auto
+  auto="$(auto_mode)"
+  if [ -f "$pin" ]; then
+    read -r pinned pinned_auto < "$pin" || true
+    if [ "$pinned_auto" = "$auto" ] && { [ "$pinned" = main ] || [ "$pinned" = dawn ]; }; then
+      echo "$pinned"; return
+    fi
+    rm -f "$pin"
+  fi
+  echo "$auto"
+}
+current_mode() { cat "$state/mode" 2>/dev/null || echo main; }
+set_pin() { # set_pin <mode>: pin unless it matches the automatic mode
+  local auto; auto="$(auto_mode)"
+  if [ "$1" = "$auto" ]; then rm -f "$pin"; else printf '%s %s\n' "$1" "$auto" > "$pin"; fi
+}
 
 mode="${1:-auto}"
 mkdir -p "$state"
 case "$mode" in
-  auto) mode="$(auto_mode)" ;;
+  auto) rm -f "$pin"; mode="$(auto_mode)" ;;
   tick)
-    mode="$(auto_mode)"
-    if [ "$mode" = "$(cat "$state/mode" 2>/dev/null)" ] && [ -s "$state/colors.sh" ] && [ -s "$state/starship.toml" ] && [ -s "$state/tmux.conf" ]; then
+    mode="$(effective_mode)"
+    if [ "$mode" = "$(current_mode)" ] && [ -s "$state/colors.sh" ] && [ -s "$state/starship.toml" ] && [ -s "$state/tmux.conf" ]; then
       exit 0
     fi ;;
-  main|dawn) ;;
+  main|dawn) set_pin "$mode" ;;
+  toggle)
+    if [ "$(current_mode)" = dawn ]; then mode=main; else mode=dawn; fi
+    set_pin "$mode" ;;
+  status)
+    p=""; [ -f "$pin" ] && p=" (pinned)"
+    echo "$(current_mode)$p"; exit 0 ;;
   location)
     [ $# -eq 3 ] || usage
     solar_times "$2" "$3" 172 0 >/dev/null || { echo "invalid or polar location: $2 $3" >&2; exit 2; }

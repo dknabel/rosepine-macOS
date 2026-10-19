@@ -42,7 +42,15 @@ and main otherwise. With a location it follows sunrise and sunset:
 
 Polar latitudes or an invalid location fall back to the fixed hours (`mode_for_hour` in `theme/lib/render.sh`).
 
-Force one: `rosepine-switch dawn` or `rosepine-switch main` (`auto` re-applies the schedule).
+Override by hand (holds until the automatic mode next changes):
+
+    rosepine-switch toggle      # flip dawn/main; also bound to a click on the sun/moon item in the bar
+    rosepine-switch dawn        # or: main
+    rosepine-switch auto        # drop the override and re-apply the schedule
+    rosepine-switch status      # e.g. "main (pinned)"
+
+## Bar extras
+- Sun/moon item (right side): click to toggle; a lock appears while an override is active.
 
 ## Permissions
 - `gh auth login`

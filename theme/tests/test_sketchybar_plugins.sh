@@ -8,7 +8,7 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
 
 [ -x "$sb/sketchybarrc" ] || fail "sketchybarrc missing or not executable"
-for p in workspaces front_app clock battery wifi volume media github; do
+for p in workspaces front_app clock battery wifi volume media github theme; do
   [ -x "$plugins/$p.sh" ] || fail "plugin $p.sh missing or not executable"
   [ -f "$sb/items/$p.sh" ] || fail "item $p.sh missing"
   bash -n "$plugins/$p.sh" || fail "syntax $p.sh"
@@ -81,7 +81,7 @@ hasnt() { ! grep -qF -- "$1" "$log" || { echo "log was:"; cat "$log"; fail "unex
 
 # 1. Every plugin exits 0 in every scenario; no error strings reach the bar.
 for m in missing fail nodata data; do
-  for p in workspaces front_app clock battery wifi volume media github; do
+  for p in workspaces front_app clock battery wifi volume media github theme; do
     CASE="$m/$p"
     nm="$p"; [ "$p" = workspaces ] && nm=workspace.2
     run "$m" "$p" NAME="$nm" FOCUSED_WORKSPACE=2 INFO="Safari" SENDER=forced
@@ -147,10 +147,22 @@ for ev in aerospace_workspace_change front_app_switched space_windows_change; do
 done
 ! grep -q -- '--add event.*space_windows_change' "$sb"/sketchybarrc "$sb"/items/*.sh || fail "built-in event re-registered"
 
+# 6b. Theme toggle: sun in dawn, moon in main, lock label only while pinned.
+sdir="$HOME/.local/state/rose-pine"
+echo dawn > "$sdir/mode"; rm -f "$sdir/pin"
+CASE=theme-dawn; run data theme; has $'icon=\xef\x86\x85'; has "label.drawing=off"
+echo main > "$sdir/mode"
+CASE=theme-main; run data theme; has $'icon=\xef\x86\x86'
+echo "main dawn" > "$sdir/pin"
+CASE=theme-pinned; run data theme; has "label.drawing=on"; has $'label=\xef\x80\xa3'
+rm -f "$sdir/mode" "$sdir/pin"
+CASE=theme-nostate; run missing theme; has "label.drawing=off"
+grep -q 'rosepine-switch.* toggle' "$sb/items/theme.sh" || fail "theme item click does not toggle"
+
 # 7. sketchybarrc sources colors, has fallback block, and references all items.
 grep -q 'colors.sh' "$sb/sketchybarrc" || fail "sketchybarrc does not source colors.sh"
 grep -q 'aerospace_workspace_change' "$sb/sketchybarrc" || fail "event not registered"
-for p in workspaces front_app clock battery wifi volume media github; do
+for p in workspaces front_app clock battery wifi volume media github theme; do
   grep -q "items/$p.sh" "$sb/sketchybarrc" || grep -q 'items/\*\.sh\|items/' "$sb/sketchybarrc" || fail "items not sourced"
 done
 
@@ -158,7 +170,7 @@ done
 want='export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"'
 grep -qF "$want" "$sb/sketchybarrc" || fail "sketchybarrc lacks PATH export"
 grep -q 'export PATH=.*/opt/homebrew/bin:/usr/local/bin' "$plugins/env.sh" || fail "env.sh lacks PATH export"
-for p in workspaces front_app clock battery wifi volume media github; do
+for p in workspaces front_app clock battery wifi volume media github theme; do
   grep -qF '. "${0%/*}/env.sh"' "$plugins/$p.sh" || fail "$p.sh does not source env.sh"
 done
 # Behavioral: a command living only in the extra PATH dir is found.
@@ -171,7 +183,7 @@ has ":ghostty:"
 
 # 9. Item order: explicit, right side clock, battery, wifi, volume.
 order="$(grep -E '^for name in ' "$sb/sketchybarrc")"
-[ "$order" = "for name in workspaces front_app media clock battery wifi volume github; do" ] \
+[ "$order" = "for name in workspaces front_app media clock battery wifi volume github theme; do" ] \
   || fail "item order wrong: $order"
 ! grep -q 'items/\*' "$sb/sketchybarrc" || fail "alphabetical glob still used"
 

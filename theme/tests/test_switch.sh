@@ -14,17 +14,31 @@ grep -q main "$state/mode"
 grep -q 'export RP_IRIS=0xffc4a7e7' "$state/colors.sh"
 echo "switch ok"
 
+# Pin: explicit/toggle modes hold until the automatic mode changes; auto clears.
+mode_is() { [ "$(cat "$state/mode")" = "$1" ] || { echo "expected mode $1, got $(cat "$state/mode")" >&2; exit 1; }; }
+export ROSEPINE_NOW_MIN=$((12*60))   # noon: automatic mode is dawn
+"$sw" auto; mode_is dawn; [ ! -f "$state/pin" ] || { echo "auto should not pin" >&2; exit 1; }
+"$sw" toggle; mode_is main; [ -f "$state/pin" ] || { echo "toggle should pin" >&2; exit 1; }
+[ "$("$sw" status)" = "main (pinned)" ] || { echo "bad status: $("$sw" status)" >&2; exit 1; }
+"$sw" tick; mode_is main                       # pin survives a tick
+export ROSEPINE_NOW_MIN=$((20*60))     # evening: automatic is now main, the pin expires
+"$sw" tick; mode_is main
+[ ! -f "$state/pin" ] || { echo "stale pin not cleared" >&2; exit 1; }
+[ "$("$sw" status)" = "main" ] || { echo "bad status after expiry" >&2; exit 1; }
+"$sw" dawn; mode_is dawn                        # 20:00 auto is main, so dawn pins
+[ -f "$state/pin" ] || { echo "explicit mode should pin" >&2; exit 1; }
+"$sw" auto; mode_is main; [ ! -f "$state/pin" ] || { echo "auto should unpin" >&2; exit 1; }
+"$sw" toggle; mode_is dawn; "$sw" toggle; mode_is main
+[ ! -f "$state/pin" ] || { echo "toggling back to automatic should unpin" >&2; exit 1; }
 # tick is a no-op when nothing changed (no regeneration, no reloads).
-export ROSEPINE_NOW_MIN=$((12*60))
-"$sw" auto; "$sw" dawn
 touch -t 202001010000 "$state/colors.sh"; "$sw" tick
 [ "$(stat -f %Sm -t %Y "$state/colors.sh")" = 2020 ] || { echo "tick regenerated unchanged state" >&2; exit 1; }
 unset ROSEPINE_NOW_MIN
 # location command validates and writes the file.
 "$sw" location 40.7128 -74.0060; [ "$(cat "$state/no-location")" = "40.7128 -74.0060" ]
 ! "$sw" location 78 15 2>/dev/null || { echo "polar location should be rejected" >&2; exit 1; }
-rm -f "$state/no-location"
-echo "solar switch ok"
+rm -f "$state/no-location" "$state/pin"
+echo "pin ok"
 
 # Starship base: missing file warns on stderr but still renders.
 err="$(ROSEPINE_STARSHIP_BASE=/nonexistent/base.toml "$sw" dawn 2>&1 >/dev/null)"
