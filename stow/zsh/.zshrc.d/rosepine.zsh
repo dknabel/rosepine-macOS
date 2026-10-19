@@ -8,3 +8,15 @@ fi
 if (( $+commands[starship] )); then
   eval "$(starship init zsh)"
 fi
+
+# CLI tool themes follow the generated light/dark palette. bat/delta use the
+# terminal's ANSI colors, fzf/lazygit read generated files.
+_rosepine_state="$HOME/.local/state/rose-pine"
+export BAT_THEME=ansi
+_lg_user="$HOME/Library/Application Support/lazygit/config.yml"
+export LG_CONFIG_FILE="$_rosepine_state/lazygit.yml"
+[[ -f "$_lg_user" ]] && LG_CONFIG_FILE="$_lg_user,$LG_CONFIG_FILE"
+# Re-read fzf colors before each prompt so open shells pick up theme changes.
+_rosepine_refresh() { [[ -r "$_rosepine_state/fzf.sh" ]] && source "$_rosepine_state/fzf.sh"; }
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd _rosepine_refresh

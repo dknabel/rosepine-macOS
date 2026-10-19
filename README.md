@@ -52,6 +52,14 @@ Override by hand (holds until the automatic mode next changes):
 ## Bar extras
 - Sun/moon item (right side): click to toggle; a lock appears while an override is active.
 
+## CLI tool themes
+`rosepine-switch` also renders `fzf.sh`, `lazygit.yml` and `delta.gitconfig` into
+`~/.local/state/rose-pine/`. The zsh hook applies fzf and lazygit automatically and sets `BAT_THEME=ansi`
+(bat and delta take their syntax colors from the Ghostty palette). For delta, add this to your gitconfig:
+
+    [include]
+        path = ~/.local/state/rose-pine/delta.gitconfig
+
 ## Permissions
 - `gh auth login`
 - AeroSpace: Accessibility

@@ -5,7 +5,7 @@ sw="$here/../../stow/theme/.local/bin/rosepine-switch"
 state="$(mktemp -d)"; trap 'rm -rf "$state"' EXIT
 export ROSEPINE_DRY_RUN=1 ROSEPINE_STATE_DIR="$state" ROSEPINE_LOCATION_FILE="$state/no-location"
 "$sw" dawn
-for f in colors.sh tmux.conf starship.toml mode; do [ -s "$state/$f" ] || { echo "missing $f" >&2; exit 1; }; done
+for f in colors.sh tmux.conf starship.toml fzf.sh lazygit.yml delta.gitconfig mode; do [ -s "$state/$f" ] || { echo "missing $f" >&2; exit 1; }; done
 grep -q dawn "$state/mode"
 cp "$state/colors.sh" "$state/colors.dawn"
 "$sw" main

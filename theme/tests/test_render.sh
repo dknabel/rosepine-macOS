@@ -14,4 +14,14 @@ has "$tmp/s.toml" 'base = "#faf4ed"'
 has "$tmp/s.toml" '[palettes.rp]'
 [ "$(sed -n '3,4p' "$tmp/s.toml")" = "$(cat "$tmp/base.toml")" ] || { echo "base must follow palette line" >&2; exit 1; }
 [ "$(grep -n '^\[' "$tmp/s.toml" | tail -n1 | cut -d: -f2)" = '[palettes.rp]' ] || { echo "palette table must be last" >&2; exit 1; }
+render_fzf "$tmp/f.sh"; has "$tmp/f.sh" "hl:#75608f"; has "$tmp/f.sh" "bg+:#f2e9e1"
+( . "$tmp/f.sh"; case "$FZF_DEFAULT_OPTS" in *"--color=bg:-1"*) ;; *) echo "fzf opts not exported" >&2; exit 1 ;; esac )
+render_lazygit "$tmp/l.yml"; has "$tmp/l.yml" "activeBorderColor: ['#75608f', bold]"
+python3 -c "import sys,re
+for l in open(sys.argv[1]):
+    assert re.match(r'^( *[A-Za-z]+:( \[.*\])?)$', l.rstrip('\n')), l" "$tmp/l.yml" || { echo "lazygit yml malformed" >&2; exit 1; }
+render_delta "$tmp/d.gitconfig"; has "$tmp/d.gitconfig" "light = true"; has "$tmp/d.gitconfig" "[delta]"
+[ "$(_rp_mix ffffff 000000 50)" = 7f7f7f ] || { echo "bad mix" >&2; exit 1; }
+. "$here/../palettes/main.sh"
+render_delta "$tmp/d2.gitconfig"; has "$tmp/d2.gitconfig" "dark = true"
 echo "render ok"

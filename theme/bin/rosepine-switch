@@ -79,6 +79,9 @@ atomic() { # atomic <renderer> <file> [extra args]
 atomic render_colors_sh colors.sh
 atomic render_tmux tmux.conf
 atomic render_starship starship.toml "$base"
+atomic render_fzf fzf.sh
+atomic render_lazygit lazygit.yml
+atomic render_delta delta.gitconfig
 printf '%s\n' "$mode" > "$state/.mode.$$" && mv -f "$state/.mode.$$" "$state/mode"
 [ "${ROSEPINE_DRY_RUN:-}" = 1 ] && exit 0
 
