@@ -9,6 +9,10 @@ LABEL="com.user.rosepine"
 check_prereqs() {
   [ "$(uname -s)" = "Darwin" ] || { echo "error: macOS required" >&2; exit 1; }
   command -v brew >/dev/null 2>&1 || { echo "error: Homebrew not found (https://brew.sh)" >&2; exit 1; }
+  # The clock popup's pointer watcher is compiled on first use. /usr/bin/clang
+  # is only a shim until the Command Line Tools are installed.
+  { command -v clang >/dev/null 2>&1 && xcode-select -p >/dev/null 2>&1; } ||
+    { echo "error: clang not found; run: xcode-select --install" >&2; exit 1; }
 }
 
 run_stow() {
