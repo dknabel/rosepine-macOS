@@ -8,7 +8,7 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
 
 [ -x "$sb/sketchybarrc" ] || fail "sketchybarrc missing or not executable"
-for p in workspaces front_app clock battery wifi volume media github theme; do
+for p in workspaces front_app clock battery wifi volume media github theme cheatsheet; do
   [ -x "$plugins/$p.sh" ] || fail "plugin $p.sh missing or not executable"
   [ -f "$sb/items/$p.sh" ] || fail "item $p.sh missing"
   bash -n "$plugins/$p.sh" || fail "syntax $p.sh"
@@ -33,7 +33,7 @@ C
 build_bin() {
   local mode="$1" bin="$tmp/bin.$1" t
   rm -rf "$bin"; mkdir -p "$bin"
-  for t in env bash sed grep awk cut tr head tail cat date dirname basename wc sort; do
+  for t in env bash sed grep awk cut tr head tail cat date dirname basename wc sort rm; do
     ln -s "$(command -v "$t")" "$bin/$t"
   done
   cat > "$bin/sketchybar" <<'S'
@@ -185,10 +185,53 @@ CASE=clock-leave; run data clock SENDER=mouse.exited.global; has "popup.drawing=
 grep -qE -- '--subscribe clock mouse.entered mouse.exited.global' "$sb/items/clock.sh" || fail "clock not subscribed to mouse events"
 grep -q 'popup.clock' "$sb/items/clock.sh" || fail "vitals rows not attached to the clock popup"
 
+# 6d. Cheat sheet: parsed from the AeroSpace config, grouped, toggled by a marker.
+cat > "$tmp/aerospace.toml" <<'T'
+[mode.main.binding]
+alt-h = 'focus left'
+alt-j = 'focus down'
+alt-k = 'focus up'
+alt-l = 'focus right'
+alt-f = 'fullscreen'
+alt-1 = 'workspace 1'
+alt-2 = 'workspace 2'
+alt-3 = 'workspace 3'
+alt-4 = 'workspace 4'
+alt-5 = 'workspace 5'
+alt-6 = 'workspace 6'
+alt-7 = 'workspace 7'
+alt-8 = 'workspace 8'
+alt-9 = 'workspace 9'
+alt-shift-semicolon = 'mode service'
+[mode.service.binding]
+esc = ['reload-config', 'mode main']
+T
+rm -f "$sdir/cheatsheet.open"
+CASE=cheat-open; run data cheatsheet AEROSPACE_CONFIG="$tmp/aerospace.toml" SENDER=forced
+[ "$rc" = 0 ] || fail "cheatsheet exited $rc"
+hasnt "popup.keys"                               # no 'toggle' argument: nothing happens
+log="$tmp/log.cheat"; : > "$log"
+env -i HOME="$HOME" PATH="$tmp/bin.data" SB_LOG="$log" SKETCHYBAR_EXTRA_PATH=/nonexistent NAME=keys \
+  AEROSPACE_CONFIG="$tmp/aerospace.toml" bash "$plugins/cheatsheet.sh" toggle
+has "main mode"; has "service mode"
+has "alt-h/j/k/l"; has "focus left/down/up/right"
+has "alt-1…9"; has "workspace 1…9"
+has "alt-f "; has "fullscreen"; has "alt-shift-;"; has "reload-config + mode main"
+has "popup.drawing=on"
+[ -f "$sdir/cheatsheet.open" ] || fail "cheatsheet marker not written"
+: > "$log"
+env -i HOME="$HOME" PATH="$tmp/bin.data" SB_LOG="$log" SKETCHYBAR_EXTRA_PATH=/nonexistent NAME=keys \
+  AEROSPACE_CONFIG="$tmp/aerospace.toml" bash "$plugins/cheatsheet.sh" toggle
+has "popup.drawing=off"; hasnt "cheatsheet.1"
+[ ! -f "$sdir/cheatsheet.open" ] || fail "cheatsheet marker not cleared"
+env -i HOME="$HOME" PATH="$tmp/bin.data" SB_LOG="$log" SKETCHYBAR_EXTRA_PATH=/nonexistent NAME=keys \
+  AEROSPACE_CONFIG="$tmp/missing.toml" bash "$plugins/cheatsheet.sh" toggle || fail "missing config must exit 0"
+grep -q 'cheatsheet.sh toggle' "$root/stow/aerospace/.config/aerospace/aerospace.toml" || fail "no aerospace hotkey for cheat sheet"
+
 # 7. sketchybarrc sources colors, has fallback block, and references all items.
 grep -q 'colors.sh' "$sb/sketchybarrc" || fail "sketchybarrc does not source colors.sh"
 grep -q 'aerospace_workspace_change' "$sb/sketchybarrc" || fail "event not registered"
-for p in workspaces front_app clock battery wifi volume media github theme; do
+for p in workspaces front_app clock battery wifi volume media github theme cheatsheet; do
   grep -q "items/$p.sh" "$sb/sketchybarrc" || grep -q 'items/\*\.sh\|items/' "$sb/sketchybarrc" || fail "items not sourced"
 done
 
@@ -196,7 +239,7 @@ done
 want='export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"'
 grep -qF "$want" "$sb/sketchybarrc" || fail "sketchybarrc lacks PATH export"
 grep -q 'export PATH=.*/opt/homebrew/bin:/usr/local/bin' "$plugins/env.sh" || fail "env.sh lacks PATH export"
-for p in workspaces front_app clock battery wifi volume media github theme; do
+for p in workspaces front_app clock battery wifi volume media github theme cheatsheet; do
   grep -qF '. "${0%/*}/env.sh"' "$plugins/$p.sh" || fail "$p.sh does not source env.sh"
 done
 # Behavioral: a command living only in the extra PATH dir is found.
@@ -209,7 +252,7 @@ has ":ghostty:"
 
 # 9. Item order: explicit, right side clock, battery, wifi, volume.
 order="$(grep -E '^for name in ' "$sb/sketchybarrc")"
-[ "$order" = "for name in workspaces front_app media clock battery wifi volume github theme; do" ] \
+[ "$order" = "for name in workspaces front_app media clock battery wifi volume github theme cheatsheet; do" ] \
   || fail "item order wrong: $order"
 ! grep -q 'items/\*' "$sb/sketchybarrc" || fail "alphabetical glob still used"
 
