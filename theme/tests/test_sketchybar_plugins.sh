@@ -154,14 +154,12 @@ for ev in aerospace_workspace_change front_app_switched space_windows_change; do
 done
 ! grep -q -- '--add event.*space_windows_change' "$sb"/sketchybarrc "$sb"/items/*.sh || fail "built-in event re-registered"
 
-# 6b. Theme toggle: sun in dawn, moon in main, lock label only while pinned.
+# 6b. Theme toggle: sun in dawn, moon in main, never a label.
 sdir="$HOME/.local/state/rose-pine"
 echo dawn > "$sdir/mode"; rm -f "$sdir/pin"
 CASE=theme-dawn; run data theme; has $'icon=\xef\x86\x85'; has "label.drawing=off"
 echo main > "$sdir/mode"
 CASE=theme-main; run data theme; has $'icon=\xef\x86\x86'
-echo "main dawn" > "$sdir/pin"
-CASE=theme-pinned; run data theme; has "label.drawing=on"; has $'label=\xef\x80\xa3'
 rm -f "$sdir/mode" "$sdir/pin"
 CASE=theme-nostate; run missing theme; has "label.drawing=off"
 grep -q 'rosepine-switch.* toggle' "$sb/items/theme.sh" || fail "theme item click does not toggle"

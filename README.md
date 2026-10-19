@@ -50,7 +50,7 @@ Override by hand (holds until the automatic mode next changes):
     rosepine-switch status      # e.g. "main (pinned)"
 
 ## Bar extras
-- Sun/moon item (right side): click to toggle; a lock appears while an override is active.
+- Sun/moon item (right side): click to toggle (the override holds until the next sunrise/sunset).
 - Hover the clock for CPU, memory, disk and network gauges.
 - Keybinding cheat sheet: `option-shift-/` (or click the keyboard icon). It is built from your live
   `aerospace.toml`, so new bindings show up automatically; any app switch closes it.
