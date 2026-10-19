@@ -17,6 +17,9 @@ if ! . "$COLORS" 2>/dev/null; then
     RP_LOVE RP_GOLD RP_ROSE RP_PINE RP_FOAM RP_IRIS
 fi
 
+# Record the mode this load rendered; plugins/theme.sh reloads when it drifts.
+cat "$HOME/.local/state/rose-pine/mode" > "$HOME/.local/state/rose-pine/bar.mode" 2>/dev/null || true
+
 FONT="Hack Nerd Font"
 APP_FONT="sketchybar-app-font"
 
