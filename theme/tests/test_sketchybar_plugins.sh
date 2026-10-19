@@ -171,7 +171,7 @@ has ":ghostty:"
 
 # 9. Item order: explicit, right side clock, battery, wifi, volume.
 order="$(grep -E '^for name in ' "$sb/sketchybarrc")"
-[ "$order" = "for name in workspaces media front_app clock battery wifi volume github; do" ] \
+[ "$order" = "for name in workspaces front_app media clock battery wifi volume github; do" ] \
   || fail "item order wrong: $order"
 ! grep -q 'items/\*' "$sb/sketchybarrc" || fail "alphabetical glob still used"
 

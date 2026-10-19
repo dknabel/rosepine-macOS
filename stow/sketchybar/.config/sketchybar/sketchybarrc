@@ -32,10 +32,10 @@ sketchybar --default \
 
 sketchybar --add event aerospace_workspace_change
 
-# Explicit order matters: left items read in add order (workspaces, media,
-# front_app); the first right-side item added sits at the screen
+# Explicit order matters: left items read in add order (workspaces, front_app,
+# media); the first right-side item added sits at the screen
 # edge, so the right side reads (edge inward) clock, battery, wifi, volume.
-for name in workspaces media front_app clock battery wifi volume github; do
+for name in workspaces front_app media clock battery wifi volume github; do
   [ -f "$CONFIG_DIR/items/$name.sh" ] && . "$CONFIG_DIR/items/$name.sh"
 done
 
