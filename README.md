@@ -16,14 +16,14 @@ If `brew bundle` fails naming an untrusted tap, run the trust command brew print
 for it (e.g. for nikitabobko/tap), then re-run `./bootstrap.sh`.
 
 ## Things to know
-- The first install flips the system appearance immediately (to light if run 07:00-18:59).
+- The first install flips the system appearance immediately (to light during the day).
 - Hide the macOS menu bar (System Settings > Control Center > Automatically hide and
   show the menu bar): SketchyBar replaces it and AeroSpace leaves a 20px top gap (the notch reserves 32px more).
 - Moving the repo: first run `stow -D -d stow -t ~ <packages>` from the old location,
   then re-run `./bootstrap.sh`. `rosepine-switch` reads the Starship base from the repo copy.
 
 ## Firefox start page
-Stowed to `~/.config/startpage/index.html` (Rose Pine dawn 07:00-18:59, main otherwise, live clock).
+Stowed to `~/.config/startpage/index.html` (Rose Pine dawn 07:00-18:59, fixed hours, not sunrise-aware, main otherwise, live clock).
 Set Firefox Settings > Home > Homepage to `file:///Users/<you>/.config/startpage/index.html`.
 Append `?theme=dawn` or `?theme=main` to force a palette. Edit the link list in the file.
 Firefox's New Tab page ignores this; use a new-tab-override extension if you want it there.
@@ -35,12 +35,14 @@ It also enables `toolkit.legacyUserProfileCustomizations.stylesheets` via `user.
 Colors follow the system appearance, so set Firefox Settings > Extensions & Themes > System theme (auto).
 
 ## Modes
-Automatic: 07:00 and 19:00 and at login (dawn 07-18, main otherwise).
-Force one: `rosepine-switch dawn` or `rosepine-switch main` (`auto` re-applies the schedule).
+Automatic: checked every 15 minutes and at login. Without a location, dawn is 07:00-18:59
+and main otherwise. With a location it follows sunrise and sunset:
 
-## Changing the switch hours
-Edit `StartCalendarInterval` in `launchd/com.user.rosepine.plist` AND `mode_for_hour`
-in `theme/lib/render.sh`, then re-run `./bootstrap.sh`.
+    rosepine-switch location 40.7128 -74.0060     # latitude longitude (written to ~/.config/rose-pine/location)
+
+Polar latitudes or an invalid location fall back to the fixed hours (`mode_for_hour` in `theme/lib/render.sh`).
+
+Force one: `rosepine-switch dawn` or `rosepine-switch main` (`auto` re-applies the schedule).
 
 ## Permissions
 - `gh auth login`

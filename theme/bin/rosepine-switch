@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# rosepine-switch [auto|main|dawn]
+# rosepine-switch [auto|tick|main|dawn|location <lat> <lon>]
 set -euo pipefail
 
 src="${BASH_SOURCE[0]}"
@@ -11,15 +11,31 @@ done
 root="$(cd "$(dirname "$src")/.." && pwd)"
 
 . "$root/lib/render.sh"
-
-mode="${1:-auto}"
-[ "$mode" = auto ] && mode="$(mode_for_hour "$(date +%H)")"
-case "$mode" in main|dawn) ;; *) echo "usage: rosepine-switch [auto|main|dawn]" >&2; exit 2 ;; esac
-
-. "$root/palettes/$mode.sh"
+. "$root/lib/solar.sh"
 
 state="${ROSEPINE_STATE_DIR:-$HOME/.local/state/rose-pine}"
+usage() { echo "usage: rosepine-switch [auto|tick|main|dawn|location <lat> <lon>]" >&2; exit 2; }
+
+mode="${1:-auto}"
 mkdir -p "$state"
+case "$mode" in
+  auto) mode="$(auto_mode)" ;;
+  tick)
+    mode="$(auto_mode)"
+    if [ "$mode" = "$(cat "$state/mode" 2>/dev/null)" ] && [ -s "$state/colors.sh" ] && [ -s "$state/starship.toml" ] && [ -s "$state/tmux.conf" ]; then
+      exit 0
+    fi ;;
+  main|dawn) ;;
+  location)
+    [ $# -eq 3 ] || usage
+    solar_times "$2" "$3" 172 0 >/dev/null || { echo "invalid or polar location: $2 $3" >&2; exit 2; }
+    mkdir -p "$HOME/.config/rose-pine"
+    printf '%s %s\n' "$2" "$3" > "${ROSEPINE_LOCATION_FILE:-$HOME/.config/rose-pine/location}"
+    exit 0 ;;
+  *) usage ;;
+esac
+
+. "$root/palettes/$mode.sh"
 
 # Starship base (override with ROSEPINE_STARSHIP_BASE, mainly for tests).
 base="${ROSEPINE_STARSHIP_BASE:-$root/../stow/starship/.config/starship/base.toml}"

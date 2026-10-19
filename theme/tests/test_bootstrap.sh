@@ -43,7 +43,7 @@ for name in "sp ace" "am&p" 'pi|pe' 'back\slash'; do
   pl="$HOME/Library/LaunchAgents/com.user.rosepine.plist"
   plutil -lint "$pl" >/dev/null || fail "lint failed for HOME '$name'"
   cmd="$(plutil -extract ProgramArguments.2 raw "$pl")"
-  [ "$cmd" = "\"$HOME/.local/bin/rosepine-switch\" auto" ] || fail "command wrong for '$name': $cmd"
+  [ "$cmd" = "\"$HOME/.local/bin/rosepine-switch\" tick" ] || fail "command wrong for '$name': $cmd"
   [ "$(plutil -extract StandardOutPath raw "$pl")" = "$HOME/.local/state/rose-pine/switch.log" ] || fail "logpath '$name'"
 done
 

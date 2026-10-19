@@ -8,25 +8,12 @@
   <array>
     <string>/bin/bash</string>
     <string>-c</string>
-    <string>"__HOME__/.local/bin/rosepine-switch" auto</string>
+    <string>"__HOME__/.local/bin/rosepine-switch" tick</string>
   </array>
   <key>RunAtLoad</key>
   <true/>
-  <key>StartCalendarInterval</key>
-  <array>
-    <dict>
-      <key>Hour</key>
-      <integer>7</integer>
-      <key>Minute</key>
-      <integer>0</integer>
-    </dict>
-    <dict>
-      <key>Hour</key>
-      <integer>19</integer>
-      <key>Minute</key>
-      <integer>0</integer>
-    </dict>
-  </array>
+  <key>StartInterval</key>
+  <integer>900</integer>
   <key>StandardOutPath</key>
   <string>__HOME__/.local/state/rose-pine/switch.log</string>
   <key>StandardErrorPath</key>
