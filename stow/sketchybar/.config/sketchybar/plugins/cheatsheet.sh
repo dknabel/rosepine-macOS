@@ -25,7 +25,7 @@ rows="$(awk '
     n = split(k, parts, "-"); out = ""
     for (i = 1; i <= n; i++) {
       m = parts[i]
-      if (m == "slash") m = "/"; else if (m == "comma") m = ","; else if (m == "semicolon") m = ";"
+      if (m == "alt") m = "option"; else if (m == "slash") m = "/"; else if (m == "comma") m = ","; else if (m == "semicolon") m = ";"
       else if (m == "period") m = "."; else if (m == "backspace") m = "⌫"; else if (m == "esc") m = "esc"
       out = out (i > 1 ? "-" : "") m
     }

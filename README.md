@@ -52,7 +52,7 @@ Override by hand (holds until the automatic mode next changes):
 ## Bar extras
 - Sun/moon item (right side): click to toggle; a lock appears while an override is active.
 - Hover the clock for CPU, memory, disk and network gauges.
-- Keybinding cheat sheet: `alt-shift-/` (or click the keyboard icon). It is built from your live
+- Keybinding cheat sheet: `option-shift-/` (or click the keyboard icon). It is built from your live
   `aerospace.toml`, so new bindings show up automatically; any app switch closes it.
 
 ## CLI tool themes

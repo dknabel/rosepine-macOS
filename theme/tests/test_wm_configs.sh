@@ -34,7 +34,8 @@ need(any('borders' in s for s in c.get('after-startup-command', [])), 'borders s
 need(c.get('exec', {}).get('inherit-env-vars') is True, 'exec.inherit-env-vars')
 need(c.get('exec', {}).get('env-vars', {}).get('PATH', '').startswith('/opt/homebrew/bin:/opt/homebrew/sbin:'), 'exec.env-vars.PATH')
 b = c.get('mode', {}).get('main', {}).get('binding', {})
-keys = ['alt-' + k for k in 'hjkl'] + ['alt-shift-' + k for k in 'hjkl']
+keys = ['alt-' + k for k in ('left', 'right', 'up', 'down', 'q', 'c', 'e', 'v', 'j')]
+keys += ['alt-shift-' + k for k in ('left', 'right', 'up', 'down')]
 keys += ['alt-%d' % i for i in range(1, 10)] + ['alt-shift-%d' % i for i in range(1, 10)]
 for k in keys:
     need(k in b, 'binding ' + k)

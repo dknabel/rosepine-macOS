@@ -214,9 +214,9 @@ log="$tmp/log.cheat"; : > "$log"
 env -i HOME="$HOME" PATH="$tmp/bin.data" SB_LOG="$log" SKETCHYBAR_EXTRA_PATH=/nonexistent NAME=keys \
   AEROSPACE_CONFIG="$tmp/aerospace.toml" bash "$plugins/cheatsheet.sh" toggle
 has "main mode"; has "service mode"
-has "alt-h/j/k/l"; has "focus left/down/up/right"
-has "alt-1…9"; has "workspace 1…9"
-has "alt-f "; has "fullscreen"; has "alt-shift-;"; has "reload-config + mode main"
+has "option-h/j/k/l"; has "focus left/down/up/right"
+has "option-1…9"; has "workspace 1…9"
+has "option-f "; has "fullscreen"; has "option-shift-;"; has "reload-config + mode main"
 has "popup.drawing=on"
 [ -f "$sdir/cheatsheet.open" ] || fail "cheatsheet marker not written"
 : > "$log"
