@@ -5,18 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Start</title>
 <style>
-  /* Rose Pine main (night) is the default; dawn applies 07:00-18:59, same as rosepine-switch */
+  /* Rose Pine main (night) until startpage.css loads; rosepine-switch renders
+     that file for the current mode (sunrise/sunset, manual toggle included). */
   :root {
     --base: #191724; --surface: #1f1d2e; --overlay: #26233a; --muted: #6e6a86;
     --subtle: #908caa; --text: #e0def4; --love: #eb6f92; --gold: #f6c177;
     --rose: #ebbcba; --pine: #31748f; --foam: #9ccfd8; --iris: #c4a7e7;
     color-scheme: dark;
-  }
-  :root[data-theme="dawn"] {
-    --base: #faf4ed; --surface: #fffaf3; --overlay: #f2e9e1; --muted: #9893a5;
-    --subtle: #797593; --text: #575279; --love: #b4637a; --gold: #ea9d34;
-    --rose: #d7827e; --pine: #286983; --foam: #56949f; --iris: #907aa9;
-    color-scheme: light;
   }
   * { box-sizing: border-box; margin: 0; }
   body {
@@ -49,6 +44,7 @@
   nav a:nth-child(5n+4) { --c: var(--iris); }
   nav a:nth-child(5n+5) { --c: var(--pine); }
 </style>
+<link id="theme" rel="stylesheet" href="../../.local/state/rose-pine/startpage.css">
 </head>
 <body>
   <header>
@@ -70,8 +66,8 @@
 <script>
   function tick() {
     var d = new Date(), h = d.getHours();
-    var forced = new URLSearchParams(location.search).get('theme');
-    document.documentElement.dataset.theme = forced || (h >= 7 && h < 19 ? 'dawn' : 'main');
+    var link = document.getElementById('theme');
+    link.href = link.getAttribute('href').split('?')[0] + '?' + Date.now();
     document.getElementById('clock').textContent =
       String(h).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
     document.getElementById('greeting').textContent =

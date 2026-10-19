@@ -113,3 +113,14 @@ render_delta() {
     echo "    line-numbers-zero-style = \"#$(_rp_val DIM_TEXT)\""
   } > "$1"
 }
+
+render_startpage() {
+  local light=false n
+  [ "$RP_BASE" = faf4ed ] && light=true
+  {
+    echo ":root {"
+    for n in $RP_NAMES; do echo "  --$(_rp_lower "$n"): #$(_rp_val "$n");"; done
+    echo "  color-scheme: $([ "$light" = true ] && echo light || echo dark);"
+    echo "}"
+  } > "$1"
+}

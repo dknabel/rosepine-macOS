@@ -23,7 +23,7 @@ for it (e.g. for nikitabobko/tap), then re-run `./bootstrap.sh`.
   then re-run `./bootstrap.sh`. `rosepine-switch` reads the Starship base from the repo copy.
 
 ## Firefox start page
-Stowed to `~/.config/startpage/index.html` (Rose Pine dawn 07:00-18:59, fixed hours, not sunrise-aware, main otherwise, live clock).
+Stowed to `~/.config/startpage/index.html` (live clock; follows the current theme via `~/.local/state/rose-pine/startpage.css`, rendered by `rosepine-switch`, so sunrise/sunset and the manual toggle apply; an open tab updates within 30s).
 Set Firefox Settings > Home > Homepage to `file:///Users/<you>/.config/startpage/index.html`.
 Append `?theme=dawn` or `?theme=main` to force a palette. Edit the link list in the file.
 Firefox's New Tab page ignores this; use a new-tab-override extension if you want it there.

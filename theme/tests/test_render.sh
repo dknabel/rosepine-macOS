@@ -21,7 +21,9 @@ python3 -c "import sys,re
 for l in open(sys.argv[1]):
     assert re.match(r'^( *[A-Za-z]+:( \[.*\])?)$', l.rstrip('\n')), l" "$tmp/l.yml" || { echo "lazygit yml malformed" >&2; exit 1; }
 render_delta "$tmp/d.gitconfig"; has "$tmp/d.gitconfig" "light = true"; has "$tmp/d.gitconfig" "[delta]"
+render_startpage "$tmp/s.css"; has "$tmp/s.css" "--base: #faf4ed;"; has "$tmp/s.css" "color-scheme: light"
 [ "$(_rp_mix ffffff 000000 50)" = 7f7f7f ] || { echo "bad mix" >&2; exit 1; }
 . "$here/../palettes/main.sh"
+render_startpage "$tmp/s2.css"; has "$tmp/s2.css" "--base: #191724;"; has "$tmp/s2.css" "color-scheme: dark"
 render_delta "$tmp/d2.gitconfig"; has "$tmp/d2.gitconfig" "dark = true"
 echo "render ok"

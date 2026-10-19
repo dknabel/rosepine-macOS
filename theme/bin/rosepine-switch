@@ -42,7 +42,7 @@ case "$mode" in
   auto) rm -f "$pin"; mode="$(auto_mode)" ;;
   tick)
     mode="$(effective_mode)"
-    if [ "$mode" = "$(current_mode)" ] && [ -s "$state/colors.sh" ] && [ -s "$state/starship.toml" ] && [ -s "$state/tmux.conf" ]; then
+    if [ "$mode" = "$(current_mode)" ] && [ -s "$state/colors.sh" ] && [ -s "$state/starship.toml" ] && [ -s "$state/tmux.conf" ] && [ -s "$state/startpage.css" ]; then
       exit 0
     fi ;;
   main|dawn) set_pin "$mode" ;;
@@ -82,6 +82,7 @@ atomic render_starship starship.toml "$base"
 atomic render_fzf fzf.sh
 atomic render_lazygit lazygit.yml
 atomic render_delta delta.gitconfig
+atomic render_startpage startpage.css
 printf '%s\n' "$mode" > "$state/.mode.$$" && mv -f "$state/.mode.$$" "$state/mode"
 [ "${ROSEPINE_DRY_RUN:-}" = 1 ] && exit 0
 
