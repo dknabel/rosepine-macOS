@@ -41,6 +41,6 @@ render_starship() {
     cat "$2"
     echo
     echo '[palettes.rp]'
-    for n in $RP_NAMES; do echo "$(_rp_lower "$n") = \"#$(_rp_val "$n")\""; done
+    for n in $RP_NAMES ON_ACCENT PROMPT_OK; do echo "$(_rp_lower "$n") = \"#$(_rp_val "$n")\""; done
   } > "$1"
 }

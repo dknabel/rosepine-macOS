@@ -11,19 +11,19 @@ $git_status\
 $character"""
 
 [directory]
-style = "fg:base bg:iris"
+style = "fg:on_accent bg:iris"
 format = "[ $path ]($style)"
 truncation_length = 3
 
 [git_branch]
 symbol = ""
-style = "fg:base bg:foam"
+style = "fg:on_accent bg:foam"
 format = "[ $symbol $branch ]($style)"
 
 [git_status]
-style = "fg:base bg:love"
+style = "fg:on_accent bg:love"
 format = "[ $all_status$ahead_behind ]($style)"
 
 [character]
-success_symbol = "[ ❯](fg:rose)"
+success_symbol = "[ ❯](fg:prompt_ok)"
 error_symbol = "[ ❯](fg:love)"

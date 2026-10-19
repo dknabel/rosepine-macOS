@@ -20,13 +20,13 @@ tomllib.load(open(sys.argv[1],'rb'))" "$base" || fail "base.toml invalid TOML (p
 
 if grep -Eq '#[0-9a-fA-F]{6}' "$base"; then fail "hex literal in base.toml"; fi
 
-names="base surface overlay muted subtle text love gold rose pine foam iris"
-used="$( { grep -oE '(fg|bg):[a-z]+' "$base" | cut -d: -f2 || true; grep -oE '(style|color) *= *"[a-z]+"' "$base" | sed -E 's/.*"([a-z]+)"/\1/' || true; } | sort -u)"
+names="base surface overlay muted subtle text love gold rose pine foam iris on_accent prompt_ok"
+used="$( { grep -oE '(fg|bg):[a-z_]+' "$base" | cut -d: -f2 || true; grep -oE '(style|color) *= *"[a-z_]+"' "$base" | sed -E 's/.*"([a-z_]+)"/\1/' || true; } | sort -u)"
 for u in $used; do
   case " $names " in *" $u "*) ;; *) fail "unknown palette color '$u' in base.toml" ;; esac
 done
 
-grep -qxF 'theme = light:Rose Pine Dawn,dark:Rose Pine' "$ghostty" || fail "ghostty theme line"
+grep -qxF 'theme = light:Rose Pine Dawn Legible,dark:Rose Pine' "$ghostty" || fail "ghostty theme line"
 
 grep -qF 'STARSHIP_CONFIG="$HOME/.local/state/rose-pine/starship.toml"' "$zshf" || fail "STARSHIP_CONFIG not set"
 if command -v zsh >/dev/null 2>&1; then zsh -n "$zshf" || fail "zsh -n"; fi

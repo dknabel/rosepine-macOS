@@ -1,0 +1,23 @@
+# Rose Pine Dawn with ANSI colors darkened to stay readable on the light background.
+palette = 0=#575279
+palette = 1=#a14d65
+palette = 2=#286983
+palette = 3=#a8680f
+palette = 4=#3d7a85
+palette = 5=#75608f
+palette = 6=#b0554f
+palette = 7=#575279
+palette = 8=#6e6a86
+palette = 9=#a14d65
+palette = 10=#286983
+palette = 11=#a8680f
+palette = 12=#3d7a85
+palette = 13=#75608f
+palette = 14=#b0554f
+palette = 15=#575279
+background = #faf4ed
+foreground = #575279
+cursor-color = #575279
+cursor-text = #faf4ed
+selection-background = #dfdad9
+selection-foreground = #575279
