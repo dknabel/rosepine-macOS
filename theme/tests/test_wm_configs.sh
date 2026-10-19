@@ -25,7 +25,7 @@ for k in ('horizontal', 'vertical'):
 need(g.get('outer', {}).get('left') == 10, 'gaps.outer.left')
 need(g.get('outer', {}).get('bottom') == 10, 'gaps.outer.bottom')
 need(g.get('outer', {}).get('right') == 10, 'gaps.outer.right')
-need(g.get('outer', {}).get('top') == 50, 'gaps.outer.top')
+need(g.get('outer', {}).get('top') == 20, 'gaps.outer.top')
 need(c.get('start-at-login') is True, 'start-at-login')
 cmd = ' '.join(c.get('exec-on-workspace-change', []))
 need('aerospace_workspace_change' in cmd, 'event name')
