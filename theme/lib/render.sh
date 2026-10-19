@@ -23,11 +23,11 @@ render_tmux() {
     echo "set -g message-style \"bg=$(c OVERLAY),fg=$(c TEXT)\""
     echo "set -g pane-border-style \"fg=$(c MUTED)\""
     echo "set -g pane-active-border-style \"fg=$(c IRIS)\""
-    echo "set -g status-left-style \"fg=$(c IRIS)\""
-    echo "set -g status-right-style \"fg=$(c SUBTLE)\""
-    echo "set -g window-status-style \"fg=$(c MUTED)\""
-    echo "set -g window-status-current-style \"fg=$(c ROSE),bold\""
-    echo "set -g mode-style \"bg=$(c OVERLAY),fg=$(c GOLD)\""
+    echo "set -g status-left-style \"fg=$(c ACCENT_TEXT)\""
+    echo "set -g status-right-style \"fg=$(c DIM_TEXT)\""
+    echo "set -g window-status-style \"fg=$(c DIM_TEXT)\""
+    echo "set -g window-status-current-style \"fg=$(c HILITE_TEXT),bold\""
+    echo "set -g mode-style \"bg=$(c OVERLAY),fg=$(c MARK_TEXT)\""
   } > "$1"
 }
 
