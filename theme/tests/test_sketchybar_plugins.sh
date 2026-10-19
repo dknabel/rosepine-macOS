@@ -106,9 +106,9 @@ CASE=media-missing; run missing media; has "drawing=off"
 CASE=media-fail;    run fail media;    has "drawing=off"
 CASE=media-data;    run data media
 has "drawing=on"; has "Some Artist - "; has "label.color=0xff000008"
-# truncated to 30 chars max
+# truncated to 40 chars max
 lbl="$(grep -m1 '^label=' "$log")"; lbl="${lbl#label=}"
-[ "${#lbl}" -gt 0 ] && [ "${#lbl}" -le 30 ] || fail "media label not 1..30 chars: '$lbl'"
+[ "${#lbl}" -gt 0 ] && [ "${#lbl}" -le 40 ] || fail "media label not 1..40 chars: '$lbl'"
 
 # 4. GitHub.
 CASE=gh-zero;    run nodata github;  has "drawing=off"

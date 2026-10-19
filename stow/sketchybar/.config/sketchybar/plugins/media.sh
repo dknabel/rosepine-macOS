@@ -12,6 +12,6 @@ for v in title artist; do
 done
 [ -n "$title" ] || hide
 if [ -n "$artist" ]; then text="$artist - $title"; else text="$title"; fi
-if [ "${#text}" -gt 30 ]; then text="${text:0:27}..."; fi
+if [ "${#text}" -gt 40 ]; then text="${text:0:37}..."; fi
 sketchybar --set "$NAME" drawing=on icon=$'\xef\x80\x81' ${RP_GOLD:+icon.color=$RP_GOLD label.color=$RP_GOLD} label="$text" 2>/dev/null
 exit 0
