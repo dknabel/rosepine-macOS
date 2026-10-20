@@ -40,6 +40,8 @@ rows="$(awk '
         for (j = 2; j <= n; j++) { kk = kk "/" pretty(k[j]); aa = aa "/" a[j] }
         if (aa == "1/2/3/4/5/6/7/8/9") aa = "1…9"
         if (kk == "1/2/3/4/5/6/7/8/9") kk = "1…9"
+        if (aa == "1/2/3/4/5/6/7/8/9/10") aa = "1…10"
+        if (kk == "1/2/3/4/5/6/7/8/9/0") kk = "1…0"
         printf "K\t%s%s\t%s %s\n", pretty(prefix[g]), kk, verb[g], aa
       } else {
         n = split(full[g], k, "\n")
@@ -51,10 +53,14 @@ rows="$(awk '
   /^\[mode\.[a-z-]+\.binding\]/ { flush(); m = $0; gsub(/^\[mode\.|\.binding\]$/, "", m); printf "H\t%s\n", m; next }
   /^\[/ { flush(); m = ""; next }
   m != "" && /^[a-z0-9-]+ *= */ {
-    key = $1; cmd = $0; sub(/^[^=]*= */, "", cmd); gsub(/[\[\]\047]/, "", cmd); gsub(/, */, " + ", cmd)
+    key = $1; cmd = $0; sub(/^[^=]*= */, "", cmd)
+    desc = ""
+    if (match(cmd, /\047 +# .*$/)) { desc = substr(cmd, RSTART + 1); sub(/^ +# */, "", desc); cmd = substr(cmd, 1, RSTART) }
+    gsub(/[\[\]\047]/, "", cmd); gsub(/, */, " + ", cmd)
+    if (desc != "") cmd = desc
     last = key; sub(/^.*-/, "", last); pre = key; if (pre == last) pre = ""; else sub(/[^-]*$/, "", pre)
     n = split(cmd, w, " "); v = ""; arg = ""
-    if (n == 2 && cmd !~ /\+/) { v = w[1]; arg = w[2] }
+    if (desc == "" && n == 2 && cmd !~ /\+/) { v = w[1]; arg = w[2] }
     g = pre "|" v
     if (!(g in cnt)) { order[++ng] = g; prefix[g] = pre; verb[g] = v }
     cnt[g]++

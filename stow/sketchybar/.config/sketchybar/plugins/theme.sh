@@ -2,6 +2,10 @@
 . "${0%/*}/env.sh"
 . "$HOME/.local/state/rose-pine/colors.sh" 2>/dev/null || true
 state="$HOME/.local/state/rose-pine"
+# After sleep the launchd tick may not have crossed sunrise/sunset yet; catch up now.
+if [ "${SENDER:-}" = system_woke ]; then
+  nohup "$HOME/.local/bin/rosepine-switch" tick >/dev/null 2>&1 &
+fi
 mode="$(cat "$state/mode" 2>/dev/null)" || mode=main
 # Self-heal: if the bar was last rendered in another mode (a missed reload), reload now.
 loaded="$(cat "$state/bar.mode" 2>/dev/null)" || loaded=""

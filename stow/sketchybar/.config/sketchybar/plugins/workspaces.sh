@@ -11,20 +11,25 @@ if [ -z "$focused" ]; then
 fi
 
 icons=""
+wins="$(aerospace list-windows --workspace "$sid" --format '%{app-name}' 2>/dev/null)"
+count=0
+[ -z "$wins" ] || count="$(printf '%s\n' "$wins" | wc -l | tr -d ' ')"
 while IFS= read -r app; do
   [ -n "$app" ] || continue
   icons="$icons$(app_icon "$app")"
 done <<WIN
-$(aerospace list-windows --workspace "$sid" --format '%{app-name}' 2>/dev/null | sort -u)
+$(printf '%s\n' "$wins" | sort -u)
 WIN
+# The pill number gains a window count once the workspace holds more than one window.
+tag="$sid"; [ "$count" -le 1 ] || tag="$sid·$count"
 
 if [ "$sid" = "$focused" ]; then
   [ -n "$icons" ] || icons=" "
   sketchybar --set "$NAME" drawing=on background.drawing=on ${RP_IRIS:+background.color=$RP_IRIS} \
-    ${RP_BASE:+icon.color=$RP_BASE} label="$icons" 2>/dev/null
+    ${RP_BASE:+icon.color=$RP_BASE} icon="$tag" label="$icons" 2>/dev/null
 elif [ -n "$icons" ]; then
   sketchybar --set "$NAME" drawing=on background.drawing=on ${RP_OVERLAY:+background.color=$RP_OVERLAY} \
-    ${RP_TEXT:+icon.color=$RP_TEXT} label="$icons" 2>/dev/null
+    ${RP_TEXT:+icon.color=$RP_TEXT} icon="$tag" label="$icons" 2>/dev/null
 else
   sketchybar --set "$NAME" drawing=off 2>/dev/null
 fi

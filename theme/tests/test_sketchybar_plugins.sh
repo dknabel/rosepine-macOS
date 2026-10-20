@@ -163,6 +163,9 @@ CASE=theme-main; run data theme; has $'icon=\xef\x86\x86'
 rm -f "$sdir/mode" "$sdir/pin"
 CASE=theme-nostate; run missing theme; has "label.drawing=off"
 grep -q 'rosepine-switch.* toggle' "$sb/items/theme.sh" || fail "theme item click does not toggle"
+grep -q -- '--subscribe theme system_woke' "$sb/items/theme.sh" || fail "theme item ignores wake"
+grep -q 'system_woke' "$sb/plugins/theme.sh" || fail "theme plugin ignores wake"
+grep -q 'aero_gap outer.left' "$sb/sketchybarrc" || fail "bar margin not derived from aerospace gaps"
 
 # 6c. Vitals popup rows and clock hover events.
 rm -f "$sdir/net.sample"

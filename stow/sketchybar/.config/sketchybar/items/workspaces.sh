@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# One item per workspace 1..9 (aerospace does not persist empty workspaces).
-for i in 1 2 3 4 5 6 7 8 9; do
+# One item per workspace 1..10 plus the S scratchpad (aerospace does not persist empty workspaces).
+for i in 1 2 3 4 5 6 7 8 9 10 S; do
   sketchybar --add item "workspace.$i" left \
     --set "workspace.$i" \
       drawing=off \

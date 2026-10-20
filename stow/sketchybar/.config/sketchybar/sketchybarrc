@@ -23,7 +23,23 @@ cat "$HOME/.local/state/rose-pine/mode" > "$HOME/.local/state/rose-pine/bar.mode
 FONT="Hack Nerd Font"
 APP_FONT="sketchybar-app-font"
 
-sketchybar --bar position=top height=36 y_offset=6 margin=10 corner_radius=12 \
+# Bar geometry follows the AeroSpace gaps so windows and bar share one rhythm: the
+# bar's side margin is gaps.outer.left, and its bottom edge sits gaps.inner.vertical
+# above the windows (the notch reserves NOTCH px; the bar starts at BAR_Y).
+AERO_CFG="${AEROSPACE_CONFIG:-$HOME/.config/aerospace/aerospace.toml}"
+aero_gap() { # aero_gap <key> <fallback>: read "<key> = N" from [gaps] (dotted keys like outer.left)
+  local v
+  v="$(awk -v k="$1" '/^\[/ { in_gaps = ($0 == "[gaps]"); next } in_gaps && $1 == k { print $3; exit }' "$AERO_CFG" 2>/dev/null)"
+  case "$v" in ''|*[!0-9]*) echo "$2" ;; *) echo "$v" ;; esac
+}
+NOTCH=32; BAR_Y=6
+MARGIN="$(aero_gap outer.left 10)"
+TOP="$(aero_gap outer.top 20)"
+INNER="$(aero_gap inner.vertical 10)"
+BAR_H=$((NOTCH + TOP - INNER - BAR_Y))
+[ "$BAR_H" -ge 20 ] || BAR_H=36
+
+sketchybar --bar position=top height="$BAR_H" y_offset="$BAR_Y" margin="$MARGIN" corner_radius=12 \
   padding_left=10 padding_right=10 color="$RP_SURFACE" border_width=2 \
   border_color="$RP_OVERLAY" blur_radius=20
 
