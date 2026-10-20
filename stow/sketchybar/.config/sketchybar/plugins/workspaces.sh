@@ -21,7 +21,7 @@ done <<WIN
 $(printf '%s\n' "$wins" | sort -u)
 WIN
 # The pill number gains a window count once the workspace holds more than one window.
-tag="$sid"; [ "$count" -le 1 ] || tag="$sid·$count"
+tag="$sid"; [ "$count" -le 1 ] || tag="${sid}·${count}"
 
 if [ "$sid" = "$focused" ]; then
   [ -n "$icons" ] || icons=" "

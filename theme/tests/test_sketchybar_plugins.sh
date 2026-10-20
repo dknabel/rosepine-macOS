@@ -141,6 +141,10 @@ CASE=ws-empty-hidden; run data workspaces NAME=workspace.7 FOCUSED_WORKSPACE=5; 
 CASE=ws-empty-focused; run data workspaces NAME=workspace.7 FOCUSED_WORKSPACE=7
 has "drawing=on"; has "background.color=0xff00000c"
 
+CASE=ws-count-tag-utf8
+# bash 3.2 in a UTF-8 locale reads "$sid·" as one variable name, leaving a malformed byte.
+run data workspaces NAME=workspace.2 FOCUSED_WORKSPACE=2 LC_ALL=en_US.UTF-8
+has "icon=2·2"
 CASE=ws-sender-fallback
 cp "$tmp/bin.data/aerospace" "$tmp/aerospace.orig"
 printf '#!/bin/sh\ncase "$*" in *"--focused"*) echo 5;; *"--workspace 2"*) echo Ghostty;; esac\n' > "$tmp/bin.data/aerospace"
