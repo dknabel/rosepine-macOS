@@ -64,3 +64,22 @@ shopt_line="$(echo "$fn" | grep -n 'shopt -u patsub_replacement' | head -1 | cut
 esc_line="$(echo "$fn" | grep -n 'esc="\${esc//' | head -1 | cut -d: -f1)"
 [ -n "$shopt_line" ] && [ -n "$esc_line" ] && [ "$shopt_line" -lt "$esc_line" ] || fail "shopt must precede escapes"
 echo "ok test_bootstrap shopt order"
+
+# Version flags
+parse_args; [ "$VERSION" = auto ] || fail "default version"
+parse_args --dark; [ "$VERSION" = dark ] || fail "--dark"
+parse_args --light; [ "$VERSION" = light ] || fail "--light"
+parse_args --auto; [ "$VERSION" = auto ] || fail "--auto"
+err="$(bash -c "source '$root/bootstrap.sh'; parse_args --nope" 2>&1)" && fail "unknown flag accepted"
+echo "$err" | grep -q 'unknown option' || fail "no unknown-option message: $err"
+"$root/bootstrap.sh" --help | grep -q -- '--dark' || fail "help text"
+
+# Fixed-mode installs remove a leftover launchd agent.
+export HOME="$tmp/fixed"; mkdir -p "$HOME"
+install_launchd_agent
+[ -f "$HOME/Library/LaunchAgents/com.user.rosepine.plist" ] || fail "setup plist"
+: > "$tmp/calls"
+remove_launchd_agent
+[ ! -e "$HOME/Library/LaunchAgents/com.user.rosepine.plist" ] || fail "plist not removed"
+grep -q '^bootout ' "$tmp/calls" || fail "launchctl bootout not called"
+echo "ok test_bootstrap version flags"

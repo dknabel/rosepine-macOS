@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# rosepine-switch [auto|tick|main|dawn|toggle|status|location <lat> <lon>]
+# rosepine-switch [auto|tick|main|dawn|toggle|status|location <lat> <lon>|lock <dark|light|auto>]
 set -euo pipefail
 
 src="${BASH_SOURCE[0]}"
@@ -14,12 +14,21 @@ root="$(cd "$(dirname "$src")/.." && pwd)"
 . "$root/lib/solar.sh"
 
 state="${ROSEPINE_STATE_DIR:-$HOME/.local/state/rose-pine}"
-usage() { echo "usage: rosepine-switch [auto|tick|main|dawn|toggle|status|location <lat> <lon>]" >&2; exit 2; }
+usage() { echo "usage: rosepine-switch [auto|tick|main|dawn|toggle|status|location <lat> <lon>|lock <dark|light|auto>]" >&2; exit 2; }
+
+# A lock (set by ./bootstrap.sh --dark/--light) fixes one mode; no lock file means automatic.
+lock_file="${ROSEPINE_LOCK_FILE:-$HOME/.config/rose-pine/lock}"
+locked=""
+if [ -f "$lock_file" ]; then
+  read -r locked < "$lock_file" || true
+  case "$locked" in main|dawn) ;; *) locked="" ;; esac
+fi
 
 # A pin ("<mode> <auto mode when pinned>") holds until the automatic mode changes.
 pin="$state/pin"
-effective_mode() { # prints the mode after applying a still-valid pin
+effective_mode() { # prints the mode after applying the lock or a still-valid pin
   local auto pinned pinned_auto
+  [ -z "$locked" ] || { echo "$locked"; return; }
   auto="$(auto_mode)"
   if [ -f "$pin" ]; then
     read -r pinned pinned_auto < "$pin" || true
@@ -39,7 +48,24 @@ set_pin() { # set_pin <mode>: pin unless it matches the automatic mode
 mode="${1:-auto}"
 mkdir -p "$state"
 case "$mode" in
+  auto|main|dawn|toggle)
+    if [ -n "$locked" ]; then
+      echo "rosepine-switch: this install is locked to $([ "$locked" = main ] && echo dark || echo light); re-run ./bootstrap.sh with --dark, --light or --auto to change it" >&2
+      exit 1
+    fi ;;
+esac
+case "$mode" in
   auto) rm -f "$pin"; mode="$(auto_mode)" ;;
+  lock)
+    [ $# -eq 2 ] || usage
+    mkdir -p "$(dirname "$lock_file")"
+    rm -f "$pin"
+    case "$2" in
+      dark) printf 'main\n' > "$lock_file"; mode=main ;;
+      light) printf 'dawn\n' > "$lock_file"; mode=dawn ;;
+      auto) rm -f "$lock_file"; mode="$(auto_mode)" ;;
+      *) usage ;;
+    esac ;;
   tick)
     mode="$(effective_mode)"
     if [ "$mode" = "$(current_mode)" ] && [ -s "$state/colors.sh" ] && [ -s "$state/starship.toml" ] && [ -s "$state/tmux.conf" ] && [ -s "$state/startpage.css" ]; then
@@ -51,6 +77,7 @@ case "$mode" in
     set_pin "$mode" ;;
   status)
     p=""; [ -f "$pin" ] && p=" (pinned)"
+    [ -z "$locked" ] || p=" (locked)"
     echo "$(current_mode)$p"; exit 0 ;;
   location)
     [ $# -eq 3 ] || usage

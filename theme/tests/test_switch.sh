@@ -77,3 +77,24 @@ env -i HOME="$tmp/home" PATH="$bin" CALLS="$tmp/calls" ROSEPINE_STATE_DIR="$tmp/
 grep -q 'could not set system appearance' "$tmp/err" || { echo "expected appearance warning" >&2; exit 1; }
 [ "$(uniq "$tmp/calls" | tr "\n" " ")" = "tmux borders sketchybar osascript " ] || { echo "bad order: $(cat "$tmp/calls")" >&2; exit 1; }
 echo "osascript ordering ok"
+
+# Lock: --dark/--light fix one mode for every command; auto unlocks.
+lock="$state/lock"; export ROSEPINE_LOCK_FILE="$lock"
+export ROSEPINE_NOW_MIN=$((12*60))   # noon: automatic would be dawn
+"$sw" lock dark; mode_is main; [ "$(cat "$lock")" = main ] || { echo "lock file wrong" >&2; exit 1; }
+"$sw" tick; mode_is main
+export ROSEPINE_NOW_MIN=$((20*60)); "$sw" tick; mode_is main
+export ROSEPINE_NOW_MIN=$((12*60)); "$sw" tick; mode_is main
+[ "$("$sw" status)" = "main (locked)" ] || { echo "bad locked status: $("$sw" status)" >&2; exit 1; }
+for c in auto toggle dawn main; do
+  err="$("$sw" "$c" 2>&1)" && { echo "$c should fail when locked" >&2; exit 1; }
+  case "$err" in *"locked to dark"*bootstrap*) ;; *) echo "bad lock message: $err" >&2; exit 1 ;; esac
+done
+mode_is main
+"$sw" lock light; mode_is dawn; [ "$(cat "$lock")" = dawn ] || { echo "light lock wrong" >&2; exit 1; }
+export ROSEPINE_NOW_MIN=$((22*60)); "$sw" tick; mode_is dawn
+"$sw" lock auto; mode_is main; [ ! -f "$lock" ] || { echo "auto should remove lock" >&2; exit 1; }
+"$sw" toggle; mode_is dawn   # unlocked again: manual commands work
+! "$sw" lock bogus 2>/dev/null || { echo "bad lock arg accepted" >&2; exit 1; }
+unset ROSEPINE_NOW_MIN ROSEPINE_LOCK_FILE
+echo "lock ok"

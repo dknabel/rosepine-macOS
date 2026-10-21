@@ -1,10 +1,25 @@
 #!/usr/bin/env bash
-# Re-runnable installer. Takes no arguments.
+# Re-runnable installer. Usage: ./bootstrap.sh [--auto|--dark|--light]
+#   --auto  switch Rose Pine dark/light with the sun (default)
+#   --dark  always Rose Pine (main)
+#   --light always Rose Pine Dawn
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAUNCHCTL="${LAUNCHCTL:-launchctl}"
 LABEL="com.user.rosepine"
+VERSION="auto"
+
+parse_args() {
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --auto|--dark|--light) VERSION="${1#--}" ;;
+      -h|--help) sed -n '2,5p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
+      *) echo "error: unknown option: $1 (use --auto, --dark or --light)" >&2; exit 2 ;;
+    esac
+    shift
+  done
+}
 
 check_prereqs() {
   [ "$(uname -s)" = "Darwin" ] || { echo "error: macOS required" >&2; exit 1; }
@@ -70,6 +85,11 @@ install_launchd_agent() {
   return 0
 }
 
+remove_launchd_agent() { # fixed-mode installs need no schedule
+  "$LAUNCHCTL" bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true
+  rm -f "$HOME/Library/LaunchAgents/$LABEL.plist"
+}
+
 start_services() {
   brew services start sketchybar || echo "warn: could not start sketchybar" >&2
   open -a AeroSpace || echo "warn: could not open AeroSpace" >&2
@@ -87,6 +107,7 @@ MSG
 }
 
 main() {
+  parse_args "$@"
   cd "$REPO_DIR"
   check_prereqs
   if ! brew bundle --file Brewfile; then
@@ -95,8 +116,9 @@ main() {
   fi
   run_stow
   install_zshrc_hook
-  install_launchd_agent
-  "$HOME/.local/bin/rosepine-switch" auto || echo "warn: rosepine-switch auto failed" >&2
+  mkdir -p "$HOME/.local/state/rose-pine"
+  if [ "$VERSION" = auto ]; then install_launchd_agent; else remove_launchd_agent; fi
+  "$HOME/.local/bin/rosepine-switch" lock "$VERSION" || echo "warn: rosepine-switch lock $VERSION failed" >&2
   start_services
   print_reminders
 }
